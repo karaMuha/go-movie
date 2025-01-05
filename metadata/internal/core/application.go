@@ -19,7 +19,7 @@ type appQueries struct {
 
 var _ driving.IApplication = (*Application)(nil)
 
-func New(repo driven.IRepository) Application {
+func New(repo driven.IMetadataRepository) Application {
 	return Application{
 		appQueries: appQueries{
 			GetMetadataQuery: queries.NewGetMetadataQuery(repo),

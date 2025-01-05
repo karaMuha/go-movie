@@ -8,15 +8,15 @@ import (
 )
 
 type GetMetadataQuery struct {
-	repo driven.IRepository
+	metadataRepo driven.IMetadataRepository
 }
 
-func NewGetMetadataQuery(repo driven.IRepository) GetMetadataQuery {
+func NewGetMetadataQuery(metadataRepo driven.IMetadataRepository) GetMetadataQuery {
 	return GetMetadataQuery{
-		repo: repo,
+		metadataRepo: metadataRepo,
 	}
 }
 
 func (q *GetMetadataQuery) GetMetadata(ctx context.Context, id string) (*model.Metadata, error) {
-	return q.repo.Load(ctx, id)
+	return q.metadataRepo.Load(ctx, id)
 }

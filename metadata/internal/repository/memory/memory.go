@@ -9,20 +9,20 @@ import (
 	model "github.com/karaMuha/go-movie/metadata/pkg"
 )
 
-type Repository struct {
+type MetadataRepository struct {
 	sync.RWMutex
 	data map[string]*model.Metadata
 }
 
-var _ driven.IRepository = (*Repository)(nil)
+var _ driven.IMetadataRepository = (*MetadataRepository)(nil)
 
-func New() *Repository {
-	return &Repository{
+func New() *MetadataRepository {
+	return &MetadataRepository{
 		data: make(map[string]*model.Metadata),
 	}
 }
 
-func (r *Repository) Load(ctx context.Context, id string) (*model.Metadata, error) {
+func (r *MetadataRepository) Load(ctx context.Context, id string) (*model.Metadata, error) {
 	r.RLock()
 	defer r.RUnlock()
 	m, ok := r.data[id]
@@ -33,7 +33,7 @@ func (r *Repository) Load(ctx context.Context, id string) (*model.Metadata, erro
 	return m, nil
 }
 
-func (r *Repository) Save(ctx context.Context, id string, metadata *model.Metadata) error {
+func (r *MetadataRepository) Save(ctx context.Context, id string, metadata *model.Metadata) error {
 	r.Lock()
 	defer r.Unlock()
 	r.data[id] = metadata

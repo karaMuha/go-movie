@@ -11,8 +11,8 @@ import (
 
 func main() {
 	log.Println("Starting movie metadata service")
-	repo := memory.New()
-	app := core.New(repo)
+	metadataRepo := memory.New()
+	app := core.New(metadataRepo)
 	metadataHandlerV1 := rest.NewMetadataHandlerV1(&app)
 
 	mux := http.NewServeMux()
@@ -30,7 +30,8 @@ func main() {
 }
 
 func setupEndpoints(mux *http.ServeMux, metadataHandlerV1 rest.MetadataHandlerV1) {
-	mux.HandleFunc("GET /get-metadata", metadataHandlerV1.GetMetadata)
+	metadataV1 := http.NewServeMux()
+	metadataV1.HandleFunc("GET /get-metadata", metadataHandlerV1.GetMetadata)
 
-	mux.Handle("/v1/", http.StripPrefix("/v1", mux))
+	mux.Handle("/v1/", http.StripPrefix("/v1", metadataV1))
 }
