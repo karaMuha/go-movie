@@ -1,4 +1,4 @@
-package model
+package ratingModel
 
 // RecordID defines a record id. Together with RecordType
 // identifies unique records across all types.
@@ -11,7 +11,6 @@ type RecordType string
 // Existing record types.
 const RecordTypeMovie = RecordType("movie")
 
-// UserID defines a user id.
 type UserID string
 
 // RatingValue defines a value of a rating record.

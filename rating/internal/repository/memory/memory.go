@@ -5,7 +5,7 @@ import (
 
 	"github.com/karaMuha/go-movie/rating/internal/core/domain"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driven"
-	model "github.com/karaMuha/go-movie/rating/pkg"
+	model "github.com/karaMuha/go-movie/rating/ratingModel"
 )
 
 type RatingRepository struct {

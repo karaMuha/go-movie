@@ -3,7 +3,7 @@ package driving
 import (
 	"context"
 
-	model "github.com/karaMuha/go-movie/metadata/metadataModel"
+	model "github.com/karaMuha/go-movie/movie/movieModel"
 )
 
 type IApplication interface {
@@ -14,5 +14,5 @@ type IApplication interface {
 type ICommands interface{}
 
 type IQueries interface {
-	GetMetadata(ctx context.Context, id string) (*model.Metadata, error)
+	GetMovieDetails(ctx context.Context, movieID string) (*model.MovieDetails, error)
 }

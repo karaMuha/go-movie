@@ -3,7 +3,7 @@ package driven
 import (
 	"context"
 
-	model "github.com/karaMuha/go-movie/metadata/pkg"
+	model "github.com/karaMuha/go-movie/metadata/metadataModel"
 )
 
 type IMetadataRepository interface {

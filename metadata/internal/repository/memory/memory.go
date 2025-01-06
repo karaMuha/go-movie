@@ -6,7 +6,7 @@ import (
 
 	"github.com/karaMuha/go-movie/metadata/internal/core/domain"
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driven"
-	model "github.com/karaMuha/go-movie/metadata/pkg"
+	model "github.com/karaMuha/go-movie/metadata/metadataModel"
 )
 
 type MetadataRepository struct {

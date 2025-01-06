@@ -3,7 +3,7 @@ package driven
 import (
 	"context"
 
-	model "github.com/karaMuha/go-movie/rating/pkg"
+	model "github.com/karaMuha/go-movie/rating/ratingModel"
 )
 
 type IRatingRepository interface {

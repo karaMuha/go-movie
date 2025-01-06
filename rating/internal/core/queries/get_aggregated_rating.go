@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driven"
-	model "github.com/karaMuha/go-movie/rating/pkg"
+	model "github.com/karaMuha/go-movie/rating/ratingModel"
 )
 
 type GetAggregatedRatingQuery struct {
