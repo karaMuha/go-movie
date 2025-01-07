@@ -4,27 +4,34 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 
 	metadataModel "github.com/karaMuha/go-movie/metadata/metadataModel"
 	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
+	"github.com/karaMuha/go-movie/pkg/discovery"
 )
 
 type MetadataRestGateway struct {
-	address string
+	registry discovery.Registry
 }
 
 var _ driven.IMetadataGateway = (*MetadataRestGateway)(nil)
 
-func NewMetadataRestGateway(address string) MetadataRestGateway {
+func NewMetadataRestGateway(registry discovery.Registry) MetadataRestGateway {
 	return MetadataRestGateway{
-		address: address,
+		registry: registry,
 	}
 }
 
 func (g *MetadataRestGateway) GetMetadata(ctx context.Context, movieID string) (*metadataModel.Metadata, error) {
-	url := fmt.Sprintf("%s/v1/get-metadata", g.address)
+	addresses, err := g.registry.ServiceAddresses(ctx, "metadata")
+	if err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("http://%s/v1/get-metadata", addresses[rand.Intn(len(addresses))])
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
