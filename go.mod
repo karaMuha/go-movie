@@ -3,9 +3,13 @@ module github.com/karaMuha/go-movie
 go 1.23.3
 
 require (
+	github.com/hashicorp/consul/api v1.31.0
+	google.golang.org/protobuf v1.36.2
+)
+
+require (
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/fatih/color v1.16.0 // indirect
-	github.com/hashicorp/consul/api v1.31.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v1.5.0 // indirect
