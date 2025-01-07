@@ -5,27 +5,33 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 
 	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
+	"github.com/karaMuha/go-movie/pkg/discovery"
 	ratingModel "github.com/karaMuha/go-movie/rating/ratingModel"
 )
 
 type RatingRestGateway struct {
-	address string
+	registry discovery.Registry
 }
 
 var _ driven.IRatingGateway = (*RatingRestGateway)(nil)
 
-func NewRatginRestGateway(address string) RatingRestGateway {
+func NewRatginRestGateway(registry discovery.Registry) RatingRestGateway {
 	return RatingRestGateway{
-		address: address,
+		registry: registry,
 	}
 }
 
 func (g *RatingRestGateway) GetAggregatedRating(ctx context.Context, recordID ratingModel.RecordID, recordType ratingModel.RecordType) (float64, error) {
-	url := fmt.Sprintf("%s/v1/get-rating", g.address)
+	addresses, err := g.registry.ServiceAddresses(ctx, "rating")
+	if err != nil {
+		return 0, err
+	}
+	url := fmt.Sprintf("http://%s/v1/get-rating", addresses[rand.Intn(len(addresses))])
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return 0, err
@@ -55,7 +61,11 @@ func (g *RatingRestGateway) GetAggregatedRating(ctx context.Context, recordID ra
 }
 
 func (g *RatingRestGateway) SubmitRating(ctx context.Context, recordID ratingModel.RecordID, recordType ratingModel.RecordType, rating *ratingModel.Rating) error {
-	url := fmt.Sprintf("%s/v1/submit-rating", g.address)
+	addresses, err := g.registry.ServiceAddresses(ctx, "rating")
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("%s/v1/submit-rating", addresses[rand.Intn(len(addresses))])
 	body := ratingModel.Rating{
 		RecordID:   string(recordID),
 		RecordType: string(recordType),
