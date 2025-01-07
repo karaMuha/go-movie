@@ -12,8 +12,8 @@ import (
 
 func main() {
 	log.Println("Starting movie service")
-	metadataGateway := metadataGateway.NewMetadataRestGateway("localhost:8080")
-	ratingGateway := ratingGateway.NewRatginRestGateway("localhost:8081")
+	metadataGateway := metadataGateway.NewMetadataRestGateway("http://localhost:8080")
+	ratingGateway := ratingGateway.NewRatginRestGateway("http://localhost:8081")
 	app := core.New(&metadataGateway, &ratingGateway)
 	movieHandlerV1 := rest.NewMovieHandlerV1(&app)
 
@@ -21,7 +21,7 @@ func main() {
 	setupEndpoints(mux, movieHandlerV1)
 
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":8082",
 		Handler: mux,
 	}
 
