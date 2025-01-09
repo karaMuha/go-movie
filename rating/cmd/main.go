@@ -5,17 +5,23 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"time"
 
+	"github.com/karaMuha/go-movie/pb"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
 	"github.com/karaMuha/go-movie/rating/internal/core"
+	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
+	grpchandler "github.com/karaMuha/go-movie/rating/internal/grpc"
 	"github.com/karaMuha/go-movie/rating/internal/repository/memory"
 	"github.com/karaMuha/go-movie/rating/internal/rest/v1"
+	"google.golang.org/grpc"
 )
 
 const serviceName = "rating"
+const domain = "localhost"
 
 func main() {
 	log.Println("Starting movie rating service")
@@ -47,26 +53,46 @@ func main() {
 
 	ratingRepo := memory.New()
 	app := core.New(&ratingRepo)
-	ratingHandlerV1 := rest.NewRatingHandlerV1(&app)
+	// startRest(&app, port)
+	startGrpc(&app, port)
+
+}
+
+func setupRestEndpoints(mux *http.ServeMux, ratingHandlerV1 rest.RatingHandlerV1) {
+	ratingV1 := http.NewServeMux()
+	ratingV1.HandleFunc("GET /get-rating", ratingHandlerV1.HandleGetRating)
+	ratingV1.HandleFunc("POST /submit-rating", ratingHandlerV1.HandleSubmitRating)
+
+	mux.Handle("/v1/", http.StripPrefix("/v1", ratingV1))
+}
+
+func startRest(app driving.IApplication, port int) {
+	ratingHandlerV1 := rest.NewRatingHandlerV1(app)
 
 	mux := http.NewServeMux()
-	setupEndpoints(mux, ratingHandlerV1)
+	setupRestEndpoints(mux, ratingHandlerV1)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: mux,
 	}
 
-	err = server.ListenAndServe()
+	err := server.ListenAndServe()
 	if err != nil {
 		panic(err)
 	}
 }
 
-func setupEndpoints(mux *http.ServeMux, ratingHandlerV1 rest.RatingHandlerV1) {
-	ratingV1 := http.NewServeMux()
-	ratingV1.HandleFunc("GET /get-rating", ratingHandlerV1.HandleGetRating)
-	ratingV1.HandleFunc("POST /submit-rating", ratingHandlerV1.HandleSubmitRating)
+func startGrpc(app driving.IApplication, port int) {
+	ratingHandler := grpchandler.NewRatingHandler(app)
+	address := fmt.Sprintf("%s:%d", domain, port)
+	listener, err := net.Listen("tcp", address)
 
-	mux.Handle("/v1/", http.StripPrefix("/v1", ratingV1))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	server := grpc.NewServer()
+	pb.RegisterRatingServiceServer(server, &ratingHandler)
+	server.Serve(listener)
 }
