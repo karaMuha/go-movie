@@ -1,4 +1,4 @@
-package metadataGateway
+package restgateway
 
 import (
 	"context"
@@ -7,25 +7,25 @@ import (
 	"math/rand"
 	"net/http"
 
-	metadataModel "github.com/karaMuha/go-movie/metadata/metadataModel"
+	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 )
 
-type MetadataRestGateway struct {
+type MetadataGateway struct {
 	registry discovery.Registry
 }
 
-var _ driven.IMetadataGateway = (*MetadataRestGateway)(nil)
+var _ driven.IMetadataGateway = (*MetadataGateway)(nil)
 
-func NewMetadataRestGateway(registry discovery.Registry) MetadataRestGateway {
-	return MetadataRestGateway{
+func NewMetadataGateway(registry discovery.Registry) MetadataGateway {
+	return MetadataGateway{
 		registry: registry,
 	}
 }
 
-func (g *MetadataRestGateway) GetMetadata(ctx context.Context, movieID string) (*metadataModel.Metadata, error) {
+func (g *MetadataGateway) GetMetadata(ctx context.Context, movieID string) (*metadataModel.Metadata, error) {
 	addresses, err := g.registry.ServiceAddresses(ctx, "metadata")
 	if err != nil {
 		return nil, err

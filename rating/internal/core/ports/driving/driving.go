@@ -3,7 +3,7 @@ package driving
 import (
 	"context"
 
-	model "github.com/karaMuha/go-movie/rating/ratingModel"
+	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
 
 type IApplication interface {
@@ -12,9 +12,9 @@ type IApplication interface {
 }
 
 type ICommands interface {
-	SaveRating(ctx context.Context, recordID model.RecordID, recordType model.RecordType, rating *model.Rating) error
+	SubmitRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) error
 }
 
 type IQueries interface {
-	GetAggregatedRating(ctx context.Context, recordID model.RecordID, recordType model.RecordType) (float64, error)
+	GetAggregatedRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) (float64, error)
 }

@@ -9,14 +9,15 @@ import (
 	"time"
 
 	"github.com/karaMuha/go-movie/movie/internal/core"
-	"github.com/karaMuha/go-movie/movie/internal/gateway/metadataGateway"
-	"github.com/karaMuha/go-movie/movie/internal/gateway/ratingGateway"
+	"github.com/karaMuha/go-movie/movie/internal/core/ports/driving"
+	grpcgateway "github.com/karaMuha/go-movie/movie/internal/gateway/grpc"
 	"github.com/karaMuha/go-movie/movie/internal/rest/v1"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
 )
 
 const serviceName = "movie"
+const domain = "localhost"
 
 func main() {
 	log.Println("Starting movie service")
@@ -47,28 +48,35 @@ func main() {
 
 	defer registry.Deregister(ctx, instanceID, serviceName)
 
-	metadataGateway := metadataGateway.NewMetadataRestGateway(registry)
-	ratingGateway := ratingGateway.NewRatginRestGateway(registry)
+	//metadataGateway := restgateway.NewMetadataGateway(registry)
+	//ratingGateway := restgateway.NewRatginGateway(registry)
+	metadataGateway := grpcgateway.NewMetadataGateway(registry)
+	ratingGateway := grpcgateway.NewRatingGateway(registry)
 	app := core.New(&metadataGateway, &ratingGateway)
-	movieHandlerV1 := rest.NewMovieHandlerV1(&app)
+	startRest(&app, port)
+
+}
+
+func setupRestEndpoints(mux *http.ServeMux, movieHandlerV1 rest.MovieHandlerV1) {
+	movieV1 := http.NewServeMux()
+	movieV1.HandleFunc("GET /get-movie-details", movieHandlerV1.HandleGetMovieDetails)
+
+	mux.Handle("/v1/", http.StripPrefix("/v1", movieV1))
+}
+
+func startRest(app driving.IApplication, port int) {
+	movieHandlerV1 := rest.NewMovieHandlerV1(app)
 
 	mux := http.NewServeMux()
-	setupEndpoints(mux, movieHandlerV1)
+	setupRestEndpoints(mux, movieHandlerV1)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: mux,
 	}
 
-	err = server.ListenAndServe()
+	err := server.ListenAndServe()
 	if err != nil {
 		panic(err)
 	}
-}
-
-func setupEndpoints(mux *http.ServeMux, movieHandlerV1 rest.MovieHandlerV1) {
-	movieV1 := http.NewServeMux()
-	movieV1.HandleFunc("GET /get-movie-details", movieHandlerV1.HandleGetMovieDetails)
-
-	mux.Handle("/v1/", http.StripPrefix("/v1", movieV1))
 }
