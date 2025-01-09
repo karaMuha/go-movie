@@ -7,7 +7,7 @@ import (
 	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
 	"github.com/karaMuha/go-movie/movie/movieModel"
-	"github.com/karaMuha/go-movie/rating/ratingModel"
+	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
 
 type GetMovieDetailsQuery struct {
@@ -28,7 +28,7 @@ func (q *GetMovieDetailsQuery) GetMovieDetails(ctx context.Context, movieID stri
 		return nil, err
 	}
 
-	rating, err := q.ratingGateway.GetAggregatedRating(ctx, ratingModel.RecordID(movieID), ratingModel.RecordTypeMovie)
+	rating, err := q.ratingGateway.GetAggregatedRating(ctx, ratingmodel.RecordID(movieID), ratingmodel.RecordTypeMovie)
 	if err != nil && !errors.Is(err, domain.ErrNotFound) {
 		return nil, err
 	}

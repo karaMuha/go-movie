@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driven"
-	model "github.com/karaMuha/go-movie/metadata/metadataModel"
+	model "github.com/karaMuha/go-movie/metadata/pkg"
 )
 
 type GetMetadataQuery struct {

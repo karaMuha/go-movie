@@ -1,6 +1,6 @@
 package movieModel
 
-import metadataModel "github.com/karaMuha/go-movie/metadata/metadataModel"
+import metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 
 // MovieDetails includes movie metadata and its
 // aggregated rating.

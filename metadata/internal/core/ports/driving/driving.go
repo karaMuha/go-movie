@@ -3,7 +3,7 @@ package driving
 import (
 	"context"
 
-	model "github.com/karaMuha/go-movie/metadata/metadataModel"
+	model "github.com/karaMuha/go-movie/metadata/pkg"
 )
 
 type IApplication interface {

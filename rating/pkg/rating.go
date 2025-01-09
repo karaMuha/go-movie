@@ -1,4 +1,4 @@
-package ratingModel
+package ratingmodel
 
 // RecordID defines a record id. Together with RecordType
 // identifies unique records across all types.

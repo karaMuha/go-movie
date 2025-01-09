@@ -3,8 +3,8 @@ package driven
 import (
 	"context"
 
-	metadataModel "github.com/karaMuha/go-movie/metadata/metadataModel"
-	ratingModel "github.com/karaMuha/go-movie/rating/ratingModel"
+	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
+	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
 
 type IMetadataGateway interface {
@@ -12,6 +12,6 @@ type IMetadataGateway interface {
 }
 
 type IRatingGateway interface {
-	GetAggregatedRating(ctx context.Context, recordID ratingModel.RecordID, recordType ratingModel.RecordType) (float64, error)
-	SubmitRating(ctx context.Context, recordID ratingModel.RecordID, recordType ratingModel.RecordType, rating *ratingModel.Rating) error
+	GetAggregatedRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) (float64, error)
+	SubmitRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) error
 }

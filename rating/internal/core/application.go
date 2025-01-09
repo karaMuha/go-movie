@@ -15,7 +15,7 @@ type Application struct {
 var _ driving.IApplication = (*Application)(nil)
 
 type appCommands struct {
-	commands.SaveRatingCommand
+	commands.SubmitRatingCommand
 }
 
 type appQueries struct {
@@ -25,7 +25,7 @@ type appQueries struct {
 func New(ratingRepo driven.IRatingRepository) Application {
 	return Application{
 		appCommands: appCommands{
-			SaveRatingCommand: commands.NewSaveRatingCommand(ratingRepo),
+			SubmitRatingCommand: commands.NewSubmitRatingCommand(ratingRepo),
 		},
 		appQueries: appQueries{
 			GetAggregatedRatingQuery: queries.NewGetAggregatedRatingQuery(ratingRepo),
