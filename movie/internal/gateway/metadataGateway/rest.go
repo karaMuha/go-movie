@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 
-	metadataModel "github.com/karaMuha/go-movie/metadata/metadataModel"
+	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
 	"github.com/karaMuha/go-movie/pkg/discovery"

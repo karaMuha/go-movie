@@ -3,7 +3,7 @@ package driven
 import (
 	"context"
 
-	metadataModel "github.com/karaMuha/go-movie/metadata/metadataModel"
+	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 	ratingModel "github.com/karaMuha/go-movie/rating/ratingModel"
 )
 

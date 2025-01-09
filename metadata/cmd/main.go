@@ -5,17 +5,23 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"time"
 
 	"github.com/karaMuha/go-movie/metadata/internal/core"
+	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driving"
+	grpchandler "github.com/karaMuha/go-movie/metadata/internal/grpc"
 	"github.com/karaMuha/go-movie/metadata/internal/repository/memory"
 	"github.com/karaMuha/go-movie/metadata/internal/rest/v1"
+	"github.com/karaMuha/go-movie/pb"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
+	"google.golang.org/grpc"
 )
 
 const serviceName = "metadata"
+const domain = "localhost"
 
 func main() {
 	log.Println("Starting movie metadata service")
@@ -47,25 +53,45 @@ func main() {
 
 	metadataRepo := memory.New()
 	app := core.New(metadataRepo)
-	metadataHandlerV1 := rest.NewMetadataHandlerV1(&app)
+
+	//startRest(&app, port)
+	startGrpc(&app, port)
+}
+
+func setupRestEndpoints(mux *http.ServeMux, metadataHandlerV1 rest.MetadataHandlerV1) {
+	metadataV1 := http.NewServeMux()
+	metadataV1.HandleFunc("GET /get-metadata", metadataHandlerV1.GetMetadata)
+
+	mux.Handle("/v1/", http.StripPrefix("/v1", metadataV1))
+}
+
+func startRest(app driving.IApplication, port int) {
+	metadataHandlerV1 := rest.NewMetadataHandlerV1(app)
 
 	mux := http.NewServeMux()
-	setupEndpoints(mux, metadataHandlerV1)
+	setupRestEndpoints(mux, metadataHandlerV1)
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: mux,
 	}
 
-	err = server.ListenAndServe()
+	err := server.ListenAndServe()
 	if err != nil {
 		panic(err)
 	}
 }
 
-func setupEndpoints(mux *http.ServeMux, metadataHandlerV1 rest.MetadataHandlerV1) {
-	metadataV1 := http.NewServeMux()
-	metadataV1.HandleFunc("GET /get-metadata", metadataHandlerV1.GetMetadata)
+func startGrpc(app driving.IApplication, port int) {
+	metdataDataHandlerGrpc := grpchandler.NewMetadataHandler(app)
+	address := fmt.Sprintf("%s:%d", domain, port)
 
-	mux.Handle("/v1/", http.StripPrefix("/v1", metadataV1))
+	listener, err := net.Listen("tcp", address)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	server := grpc.NewServer()
+	pb.RegisterMetadataServiceServer(server, &metdataDataHandlerGrpc)
+	server.Serve(listener)
 }
