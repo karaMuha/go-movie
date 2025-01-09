@@ -24,3 +24,16 @@ type Rating struct {
 	UserID     string `json:"user_id"`
 	Value      int    `json:"value"`
 }
+
+type RatingEventType string
+
+const RatingEventTypeSubmit = "submit"
+const RatingEventTypeDelete = "delete"
+
+type RatingEvent struct {
+	RecordID   string `json:"record_id"`
+	RecordType string `json:"record_type"`
+	UserID     string `json:"user_id"`
+	Value      int    `json:"value"`
+	EventType  RatingEventType
+}
