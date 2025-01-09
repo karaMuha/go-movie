@@ -7,16 +7,16 @@ import (
 	model "github.com/karaMuha/go-movie/rating/ratingModel"
 )
 
-type SaveRatingCommand struct {
+type SubmitRatingCommand struct {
 	ratingsRepo driven.IRatingRepository
 }
 
-func NewSaveRatingCommand(ratingsRepo driven.IRatingRepository) SaveRatingCommand {
-	return SaveRatingCommand{
+func NewSubmitRatingCommand(ratingsRepo driven.IRatingRepository) SubmitRatingCommand {
+	return SubmitRatingCommand{
 		ratingsRepo: ratingsRepo,
 	}
 }
 
-func (c *SaveRatingCommand) SaveRating(ctx context.Context, recordID model.RecordID, recordType model.RecordType, rating *model.Rating) error {
+func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, recordID model.RecordID, recordType model.RecordType, rating *model.Rating) error {
 	return c.ratingsRepo.Save(ctx, recordID, recordType, rating)
 }

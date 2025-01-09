@@ -2,6 +2,7 @@ package grpchandler
 
 import (
 	"context"
+	"errors"
 
 	"github.com/karaMuha/go-movie/metadata/internal/core/domain"
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driving"
@@ -29,7 +30,7 @@ func (h *MetadataHandler) GetMetadata(ctx context.Context, req *pb.GetMetadataRe
 
 	metadata, err := h.app.GetMetadata(ctx, req.MovieId)
 
-	if err == domain.ErrNotFound {
+	if errors.Is(err, domain.ErrNotFound) {
 		return nil, status.Errorf(codes.NotFound, err.Error())
 	}
 

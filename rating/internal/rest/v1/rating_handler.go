@@ -70,7 +70,7 @@ func (h *RatingHandlerV1) HandleSubmitRating(w http.ResponseWriter, r *http.Requ
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	err = h.app.SaveRating(ctx, model.RecordID(rating.RecordID), model.RecordType(rating.RecordType), &rating)
+	err = h.app.SubmitRating(ctx, model.RecordID(rating.RecordID), model.RecordType(rating.RecordType), &rating)
 	if err != nil {
 		log.Printf("SaveRating error: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

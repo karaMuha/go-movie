@@ -12,7 +12,7 @@ type IApplication interface {
 }
 
 type ICommands interface {
-	SaveRating(ctx context.Context, recordID model.RecordID, recordType model.RecordType, rating *model.Rating) error
+	SubmitRating(ctx context.Context, recordID model.RecordID, recordType model.RecordType, rating *model.Rating) error
 }
 
 type IQueries interface {
