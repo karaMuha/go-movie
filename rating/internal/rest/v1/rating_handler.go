@@ -10,7 +10,7 @@ import (
 
 	"github.com/karaMuha/go-movie/rating/internal/core/domain"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
-	model "github.com/karaMuha/go-movie/rating/ratingModel"
+	model "github.com/karaMuha/go-movie/rating/pkg"
 )
 
 type RatingHandlerV1 struct {

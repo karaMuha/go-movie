@@ -7,7 +7,7 @@ import (
 	"github.com/karaMuha/go-movie/pb"
 	"github.com/karaMuha/go-movie/rating/internal/core/domain"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
-	"github.com/karaMuha/go-movie/rating/ratingModel"
+	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -28,7 +28,7 @@ func (h *RatingHandler) GetAggregatedRating(ctx context.Context, req *pb.GetAggr
 		return nil, status.Errorf(codes.InvalidArgument, "nil req or empty record id or empty record type")
 	}
 
-	rating, err := h.app.GetAggregatedRating(ctx, ratingModel.RecordID(req.RecordId), ratingModel.RecordType(req.RecordType))
+	rating, err := h.app.GetAggregatedRating(ctx, ratingmodel.RecordID(req.RecordId), ratingmodel.RecordType(req.RecordType))
 
 	if errors.Is(err, domain.ErrNotFound) {
 		return nil, status.Errorf(codes.NotFound, err.Error())
@@ -48,13 +48,13 @@ func (h *RatingHandler) SubmitRating(ctx context.Context, req *pb.SubmitRatingRe
 		return nil, status.Errorf(codes.InvalidArgument, "nil req or empty record id or empty user id")
 	}
 
-	rating := &ratingModel.Rating{
+	rating := &ratingmodel.Rating{
 		RecordID:   req.RecordId,
-		RecordType: string(ratingModel.RecordTypeMovie),
+		RecordType: string(ratingmodel.RecordTypeMovie),
 		UserID:     req.UserId,
 		Value:      int(req.RatingValue),
 	}
-	err := h.app.SubmitRating(ctx, ratingModel.RecordID(req.RecordId), ratingModel.RecordTypeMovie, rating)
+	err := h.app.SubmitRating(ctx, ratingmodel.RecordID(req.RecordId), ratingmodel.RecordTypeMovie, rating)
 
 	return &pb.SubmitRatingResponse{}, err
 

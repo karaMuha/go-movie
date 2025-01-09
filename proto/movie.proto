@@ -15,7 +15,7 @@ message MovieDetails {
 
 service MetadataService {
   rpc GetMetadata(GetMetadataRequest) returns (GetMetadataResponse);
-  rpc PutMetadata(SaveMetadataRequest) returns (SaveMetadataResponse);
+  rpc SubmitMetadata(SubmitMetadataRequest) returns (SubmitMetadataResponse);
 }
 
 message GetMetadataRequest {
@@ -26,16 +26,16 @@ message GetMetadataResponse {
   Metadata metadata = 1;
 }
 
-message SaveMetadataRequest {
+message SubmitMetadataRequest {
   Metadata metadata = 1;
 }
 
-message SaveMetadataResponse {
+message SubmitMetadataResponse {
 }
 
 service RatingService {
   rpc GetAggregatedRating(GetAggregatedRatingRequest) returns (GetAggregatedRatingResponse);
-  rpc SaveRating(SubmitRatingRequest) returns (SubmitRatingResponse);
+  rpc SubmitRating(SubmitRatingRequest) returns (SubmitRatingResponse);
 }
 
 message GetAggregatedRatingRequest {
