@@ -12,6 +12,7 @@ import (
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driving"
 	"github.com/karaMuha/go-movie/movie/internal/endpoint/rest/v1"
 	grpcgateway "github.com/karaMuha/go-movie/movie/internal/gateway/grpc"
+	"github.com/karaMuha/go-movie/movie/internal/queue/producer"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
 )
@@ -52,7 +53,11 @@ func main() {
 	//ratingGateway := restgateway.NewRatginGateway(registry)
 	metadataGateway := grpcgateway.NewMetadataGateway(registry)
 	ratingGateway := grpcgateway.NewRatingGateway(registry)
-	app := core.New(&metadataGateway, &ratingGateway)
+	producer := producer.NewMessageProducer("localhost:9092", "ratings")
+	defer producer.Writer.Close()
+
+	app := core.New(&metadataGateway, &ratingGateway, producer)
+
 	startRest(&app, port)
 
 }
@@ -60,6 +65,7 @@ func main() {
 func setupRestEndpoints(mux *http.ServeMux, movieHandlerV1 rest.MovieHandlerV1) {
 	movieV1 := http.NewServeMux()
 	movieV1.HandleFunc("GET /get-movie-details", movieHandlerV1.HandleGetMovieDetails)
+	movieV1.HandleFunc("POST /submit-rating", movieHandlerV1.HandleSubmitRating)
 
 	mux.Handle("/v1/", http.StripPrefix("/v1", movieV1))
 }

@@ -10,24 +10,24 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-type QueueConsumer struct {
+type MessageConsumer struct {
 	app    driving.IApplication
 	Reader *kafka.Reader
 }
 
-func NewQueueConsumer(app driving.IApplication, address string, topic string, gourpID string) *QueueConsumer {
+func NewMessageConsumer(app driving.IApplication, address string, topic string, gourpID string) *MessageConsumer {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{address},
 		Topic:   topic,
 		GroupID: gourpID,
 	})
-	return &QueueConsumer{
+	return &MessageConsumer{
 		app:    app,
 		Reader: reader,
 	}
 }
 
-func (c *QueueConsumer) StartReading() {
+func (c *MessageConsumer) StartReading() {
 	for {
 		message, err := c.Reader.ReadMessage(context.Background())
 		if err != nil {
@@ -39,7 +39,10 @@ func (c *QueueConsumer) StartReading() {
 		err = json.Unmarshal(message.Value, &event)
 		if err != nil {
 			log.Printf("Unmarshal error on event: %v", err)
+			continue
 		}
+
+		log.Printf("Read message: %v\n", event)
 
 		c.app.SubmitRating(context.Background(), ratingmodel.RecordID(event.RecordID), ratingmodel.RecordType(event.RecordType), &ratingmodel.Rating{
 			RecordID:   event.RecordID,

@@ -55,7 +55,7 @@ func main() {
 	ratingRepo := memory.New()
 	app := core.New(&ratingRepo)
 
-	consumer := consumer.NewQueueConsumer(&app, "localhost:9092", "ratings", "rating")
+	consumer := consumer.NewMessageConsumer(&app, "localhost:9092", "ratings", "rating")
 	defer consumer.Reader.Close()
 	go consumer.StartReading()
 
