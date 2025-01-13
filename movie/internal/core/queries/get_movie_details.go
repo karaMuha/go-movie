@@ -2,7 +2,7 @@ package queries
 
 import (
 	"context"
-	"errors"
+	"strings"
 
 	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
@@ -24,12 +24,18 @@ func NewGetMovieDetailsQuery(metadataGateway driven.IMetadataGateway, ratingGate
 
 func (q *GetMovieDetailsQuery) GetMovieDetails(ctx context.Context, movieID string) (*movieModel.MovieDetails, error) {
 	metadata, err := q.metadataGateway.GetMetadata(ctx, movieID)
+	if strings.Contains(err.Error(), "NotFound") {
+		return nil, domain.ErrNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
 
 	rating, err := q.ratingGateway.GetAggregatedRating(ctx, ratingmodel.RecordID(movieID), ratingmodel.RecordTypeMovie)
-	if err != nil && !errors.Is(err, domain.ErrNotFound) {
+	if strings.Contains(err.Error(), "NotFound") {
+		return nil, domain.ErrNotFound
+	}
+	if err != nil {
 		return nil, err
 	}
 

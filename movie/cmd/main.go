@@ -10,8 +10,8 @@ import (
 
 	"github.com/karaMuha/go-movie/movie/internal/core"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driving"
+	"github.com/karaMuha/go-movie/movie/internal/endpoint/rest/v1"
 	grpcgateway "github.com/karaMuha/go-movie/movie/internal/gateway/grpc"
-	"github.com/karaMuha/go-movie/movie/internal/rest/v1"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
 )

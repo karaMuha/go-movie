@@ -11,9 +11,9 @@ import (
 
 	"github.com/karaMuha/go-movie/metadata/internal/core"
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driving"
-	grpchandler "github.com/karaMuha/go-movie/metadata/internal/grpc"
+	grpchandler "github.com/karaMuha/go-movie/metadata/internal/endpoint/grpc"
+	"github.com/karaMuha/go-movie/metadata/internal/endpoint/rest/v1"
 	"github.com/karaMuha/go-movie/metadata/internal/repository/memory"
-	"github.com/karaMuha/go-movie/metadata/internal/rest/v1"
 	"github.com/karaMuha/go-movie/pb"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
