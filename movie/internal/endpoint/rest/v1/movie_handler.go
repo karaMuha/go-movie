@@ -1,13 +1,16 @@
 package rest
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driving"
+	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
 
 type MovieHandlerV1 struct {
@@ -38,6 +41,25 @@ func (h *MovieHandlerV1) HandleGetMovieDetails(w http.ResponseWriter, r *http.Re
 	err = json.NewEncoder(w).Encode(movieDetails)
 	if err != nil {
 		log.Printf("Response encode error: %v\n", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *MovieHandlerV1) HandleSubmitRating(w http.ResponseWriter, r *http.Request) {
+	var rating ratingmodel.Rating
+	err := json.NewDecoder(r.Body).Decode(&rating)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	err = h.app.SubmitRating(ctx, &rating)
+	if err != nil {
+		log.Printf("SaveRating error: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

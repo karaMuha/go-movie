@@ -14,9 +14,10 @@ import (
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
 	"github.com/karaMuha/go-movie/rating/internal/core"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
-	grpchandler "github.com/karaMuha/go-movie/rating/internal/grpc"
+	grpchandler "github.com/karaMuha/go-movie/rating/internal/endpoint/grpc"
+	"github.com/karaMuha/go-movie/rating/internal/endpoint/rest/v1"
+	"github.com/karaMuha/go-movie/rating/internal/queue/consumer"
 	"github.com/karaMuha/go-movie/rating/internal/repository/memory"
-	"github.com/karaMuha/go-movie/rating/internal/rest/v1"
 	"google.golang.org/grpc"
 )
 
@@ -53,6 +54,11 @@ func main() {
 
 	ratingRepo := memory.New()
 	app := core.New(&ratingRepo)
+
+	consumer := consumer.NewMessageConsumer(&app, "localhost:9092", "ratings", "rating")
+	defer consumer.Reader.Close()
+	go consumer.StartReading()
+
 	// startRest(&app, port)
 	startGrpc(&app, port)
 
