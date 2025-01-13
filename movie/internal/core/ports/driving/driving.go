@@ -4,6 +4,7 @@ import (
 	"context"
 
 	model "github.com/karaMuha/go-movie/movie/movieModel"
+	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
 
 type IApplication interface {
@@ -11,7 +12,9 @@ type IApplication interface {
 	IQueries
 }
 
-type ICommands interface{}
+type ICommands interface {
+	SubmitRating(ctx context.Context, cmd *ratingmodel.Rating) error
+}
 
 type IQueries interface {
 	GetMovieDetails(ctx context.Context, movieID string) (*model.MovieDetails, error)
