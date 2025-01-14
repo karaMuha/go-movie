@@ -8,11 +8,13 @@ services:
     command: agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0
 
   zookeeper:
+    container_name: zookeeper
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
 
   kafka:
+    container_name: kafka
     image: wurstmeister/kafka
     ports:
       - "9092:9092"
@@ -20,4 +22,16 @@ services:
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_CREATE_TOPICS: "ratings:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-    
+
+  metadata-db:
+    container_name: metadata-db
+    image: postgres:16.3-alpine
+    ports:
+      - 5432:5432
+    restart: always
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=metadata_db
+    volumes:
+      - ./data/metadata/:/var/lib/postgresql/data
