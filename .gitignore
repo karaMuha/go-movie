@@ -26,3 +26,11 @@ go.work.sum
 
 # generated protobuf code
 pb
+
+# db data
+data
+
+# compiled code
+metadata/metadata
+movie/movie
+rating/rating

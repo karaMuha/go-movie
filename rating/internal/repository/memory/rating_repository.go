@@ -9,18 +9,18 @@ import (
 )
 
 type RatingRepository struct {
-	data map[model.RecordType]map[model.RecordID][]model.Rating
+	data map[model.RecordType]map[model.RecordID][]*model.Rating
 }
 
 var _ driven.IRatingRepository = (*RatingRepository)(nil)
 
 func New() RatingRepository {
 	return RatingRepository{
-		data: make(map[model.RecordType]map[model.RecordID][]model.Rating),
+		data: make(map[model.RecordType]map[model.RecordID][]*model.Rating),
 	}
 }
 
-func (r *RatingRepository) Load(ctx context.Context, recordID model.RecordID, recordType model.RecordType) ([]model.Rating, error) {
+func (r *RatingRepository) Load(ctx context.Context, recordID model.RecordID, recordType model.RecordType) ([]*model.Rating, error) {
 	if _, ok := r.data[recordType]; !ok {
 		return nil, domain.ErrNotFound
 	}
@@ -30,9 +30,9 @@ func (r *RatingRepository) Load(ctx context.Context, recordID model.RecordID, re
 
 func (r *RatingRepository) Save(ctx context.Context, recordID model.RecordID, recordType model.RecordType, rating *model.Rating) error {
 	if _, ok := r.data[recordType]; !ok {
-		r.data[recordType] = map[model.RecordID][]model.Rating{}
+		r.data[recordType] = map[model.RecordID][]*model.Rating{}
 	}
 
-	r.data[recordType][recordID] = append(r.data[recordType][recordID], *rating)
+	r.data[recordType][recordID] = append(r.data[recordType][recordID], rating)
 	return nil
 }

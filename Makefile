@@ -3,3 +3,6 @@ run-consul:
 
 gen-pb:
 	protoc -I=proto --go_out=. --go-grpc_out=. movie.proto
+
+run-infra:
+	docker-compose up -d
