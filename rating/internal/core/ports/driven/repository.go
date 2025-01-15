@@ -7,6 +7,6 @@ import (
 )
 
 type IRatingRepository interface {
-	Load(ctx context.Context, recordID model.RecordID, recordType model.RecordType) ([]model.Rating, error)
+	Load(ctx context.Context, recordID model.RecordID, recordType model.RecordType) ([]*model.Rating, error)
 	Save(ctx context.Context, recordID model.RecordID, recordType model.RecordType, rating *model.Rating) error
 }

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/karaMuha/go-movie/pb"
-	"github.com/karaMuha/go-movie/pkg/database/postgres"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
 	"github.com/karaMuha/go-movie/rating/config"
@@ -51,11 +50,12 @@ func main() {
 
 	defer registry.Deregister(ctx, instanceID, serviceName)
 
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.DbHost, config.DbPort, config.DbUser, config.DbPassword, config.DbName, config.DbSslMode)
-	_, err = postgres.ConnectToDb(config.DbDriver, connectionString)
+	/* connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.DbHost, config.DbPort, config.DbUser, config.DbPassword, config.DbName, config.DbSslMode)
+	db, err := postgres.ConnectToDb(config.DbDriver, connectionString)
 	if err != nil {
 		panic(err)
 	}
+	ratingPostgresRepo := postgres_repo.NewRatingRepository(db) */
 
 	ratingRepo := memory.New()
 	app := core.New(&ratingRepo)

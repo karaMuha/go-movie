@@ -15,7 +15,6 @@ import (
 	"github.com/karaMuha/go-movie/metadata/internal/endpoint/rest/v1"
 	"github.com/karaMuha/go-movie/metadata/internal/repository/memory"
 	"github.com/karaMuha/go-movie/pb"
-	"github.com/karaMuha/go-movie/pkg/database/postgres"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
 	"google.golang.org/grpc"
@@ -50,12 +49,12 @@ func main() {
 
 	defer registry.Deregister(ctx, instanceID, serviceName)
 
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.DbHost, config.DbPort, config.DbUser, config.DbPassword, config.DbName, config.DbSslMode)
-	fmt.Printf("DB Connection: %s\n", connectionString)
-	_, err = postgres.ConnectToDb(config.DbDriver, connectionString)
+	/* connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.DbHost, config.DbPort, config.DbUser, config.DbPassword, config.DbName, config.DbSslMode)
+	db, err := postgres.ConnectToDb(config.DbDriver, connectionString)
 	if err != nil {
 		panic(err)
 	}
+	metadataPostgresRepo := postgres_repo.NewMetadataRepository(db) */
 
 	metadataRepo := memory.New()
 	app := core.New(metadataRepo)
