@@ -1,0 +1,63 @@
+package postgres_repo
+
+import (
+	"context"
+	"database/sql"
+
+	"github.com/karaMuha/go-movie/rating/internal/core/ports/driven"
+	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
+)
+
+type RatingRepository struct {
+	db *sql.DB
+}
+
+var _ driven.IRatingRepository = (*RatingRepository)(nil)
+
+func NewRatingRepository(db *sql.DB) RatingRepository {
+	return RatingRepository{
+		db: db,
+	}
+}
+
+func (r *RatingRepository) Load(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) ([]*ratingmodel.Rating, error) {
+	query := `
+		SELECT *
+		FROM ratings
+		WHERE record_id = $1
+		AND record_type = $2
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, string(recordID), string(recordType))
+	if err != nil {
+		return nil, err
+	}
+
+	var ratingList []*ratingmodel.Rating
+	for rows.Next() {
+		var rating ratingmodel.Rating
+		err := rows.Scan(
+			&rating.RecordID,
+			&rating.RecordType,
+			&rating.UserID,
+			&rating.Value,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		ratingList = append(ratingList, &rating)
+	}
+
+	return ratingList, nil
+}
+
+func (r *RatingRepository) Save(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) error {
+	query := `
+		INSERT INTO ratings (record_id, record_type, user_id, value)
+		VALUES ($1, $2, $3, $4)
+	`
+
+	_, err := r.db.ExecContext(ctx, query, rating.RecordID, rating.RecordType, rating.UserID, rating.Value)
+	return err
+}

@@ -35,3 +35,17 @@ services:
       - POSTGRES_DB=metadata_db
     volumes:
       - ./data/metadata/:/var/lib/postgresql/data
+      - ./dbscripts/metadata_public_schema.sql:/docker-entrypoint-initdb.d/public_schema.sql
+
+  ratings-db:
+    container_name: ratings-db
+    image: postgres:16.3-alpine
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=ratings_db
+    volumes:
+      - ./data/ratings/:/var/lib/postgresql/data
+      - ./dbscripts/ratings_public_schema.sql:/docker-entrypoint-initdb.d/public_schema.sql

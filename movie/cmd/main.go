@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/karaMuha/go-movie/movie/config"
 	"github.com/karaMuha/go-movie/movie/internal/core"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driving"
 	"github.com/karaMuha/go-movie/movie/internal/endpoint/rest/v1"
@@ -15,24 +15,24 @@ import (
 	"github.com/karaMuha/go-movie/movie/internal/queue/producer"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
+
+	_ "github.com/lib/pq"
 )
 
 const serviceName = "movie"
-const domain = "localhost"
 
 func main() {
 	log.Println("Starting movie service")
-	var port int
-	flag.IntVar(&port, "port", 8082, "API handler port")
-	flag.Parse()
-	registry, err := consul.NewConsulRegistry("localhost:8500")
+	config := config.NewConfig()
+
+	registry, err := consul.NewConsulRegistry(config.ConsulAddress)
 	if err != nil {
 		panic(err)
 	}
 
 	ctx := context.Background()
 	instanceID := discovery.GenerateInstanceID(serviceName)
-	err = registry.Register(ctx, instanceID, serviceName, fmt.Sprintf("localhost:%d", port))
+	err = registry.Register(ctx, instanceID, serviceName, fmt.Sprintf("%s%s", config.Domain, config.Port))
 	if err != nil {
 		panic(err)
 	}
@@ -53,12 +53,12 @@ func main() {
 	//ratingGateway := restgateway.NewRatginGateway(registry)
 	metadataGateway := grpcgateway.NewMetadataGateway(registry)
 	ratingGateway := grpcgateway.NewRatingGateway(registry)
-	producer := producer.NewMessageProducer("localhost:9092", "ratings")
+	producer := producer.NewMessageProducer(config.KafkaAddress, "ratings")
 	defer producer.Writer.Close()
 
 	app := core.New(&metadataGateway, &ratingGateway, producer)
 
-	startRest(&app, port)
+	startRest(&app, config.Port)
 
 }
 
@@ -70,14 +70,14 @@ func setupRestEndpoints(mux *http.ServeMux, movieHandlerV1 rest.MovieHandlerV1) 
 	mux.Handle("/v1/", http.StripPrefix("/v1", movieV1))
 }
 
-func startRest(app driving.IApplication, port int) {
+func startRest(app driving.IApplication, port string) {
 	movieHandlerV1 := rest.NewMovieHandlerV1(app)
 
 	mux := http.NewServeMux()
 	setupRestEndpoints(mux, movieHandlerV1)
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
+		Addr:    port,
 		Handler: mux,
 	}
 
