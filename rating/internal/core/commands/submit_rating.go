@@ -19,7 +19,7 @@ func NewSubmitRatingCommand(ratingsRepo driven.IRatingRepository) SubmitRatingCo
 }
 
 func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, recordID model.RecordID, recordType model.RecordType, rating *model.Rating) error {
-	err := domain.CreateRating(rating.RecordID, rating.RecordType, rating.UserID, rating.Value)
+	err := domain.SubmitRating(rating.RecordID, rating.RecordType, rating.UserID, rating.Value)
 	if err != nil {
 		return err
 	}
