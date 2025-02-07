@@ -17,4 +17,10 @@ Even though I followed the authors book example there are some major differences
 - I integrated Kafka into the systems architecture while the author provides an example that is just in parts integrated to the actual code
 
 ## Feedback
-My overall impression is that the target audience for this book are software engineers who have some production experience and want to make their first step into the world of microservices. On the one hand he author discusses and explains a lot of the concepts regarding microservice architecutre like observability, alerting, telemetry, async communication etc. but one the other hand fails to implement these concepts in what I would consider a production-grade example.
+My overall impression is that the target audience for this book are software engineers who have some production experience and want to make their first step into the world of microservices. On the one hand he author discusses and explains some of the key concepts regarding microservice architecutre like observability, alerting, telemetry, async communication etc. but one the other hand fails to implement these concepts in what I would consider a production-grade example.
+
+## Todos
+- dockerize the serivces
+- implement a solution for distributed tracing
+- save logs and telemetric data in a seperate database
+- send feedback to author
