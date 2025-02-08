@@ -26,4 +26,5 @@ My overall impression is that the target audience for this book are software eng
 - implement graceful shutdown in each service and make sure to inform kafka in case of service shutdown to prevent message loss
 - implement a solution for distributed tracing
 - save logs and telemetric data in a seperate database
+- add Prometheus/Grafana to visualize telemetric data
 - send feedback to author
