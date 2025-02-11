@@ -28,3 +28,6 @@ My overall impression is that the target audience for this book are software eng
 - save logs and telemetric data in a seperate database
 - add Prometheus/Grafana to visualize telemetric data
 - send feedback to author
+
+## What next?
+To get deeper into microservices and learn how to design and implement a complex event-driven architecture, I will study the literature `Event-Driven Architecture in Golang: Building complex systems with asynchronicity and eventual consistency` from the author Michael Stack.
