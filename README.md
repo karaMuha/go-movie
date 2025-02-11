@@ -10,11 +10,11 @@ The Architecture consists of three services, two databases, a message bus and a 
 
 ![Diagram of the architecture](/diagram.drawio.png)
 
-## Differences to the book authors code
-Even though I followed the authors book example there are some major differences between the authors code and mine:
+## Differences to the books code
+Even though I followed the authors example project there are some major differences between the authors code and mine:
 - the author uses the classic N-tier application design while I implemented the domain-centric architecture as described in my [go-social repository](https://github.com/karaMuha/go-social)
 - I used testcontainers to test against real databases while the author uses mocks and in-memory solutions
-- I integrated Kafka into the systems architecture while the author provides an example that is just in parts integrated to the actual code
+- I integrated Kafka into the systems architecture while the author provides an example that is just in parts integrated to the actual project
 
 ## How to run the app
 
