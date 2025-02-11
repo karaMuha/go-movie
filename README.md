@@ -19,13 +19,14 @@ Even though I followed the authors example project there are some major differen
 ## How to run the app
 
 ## Feedback
-My overall impression is that the target audience for this book are software engineers who have some production experience and want to make their first step into the world of microservices. On the one hand he author discusses and explains some of the key concepts regarding microservice architecutre like observability, alerting, telemetry, async communication etc. but one the other hand fails to implement these concepts in what I would consider a production-grade example.
+My overall impression is that the target audience for this book are software engineers who have some production experience and want to make their first step into the world of microservices.
+On the one hand he author discusses and explains some of the key concepts regarding microservice architecutre like service discovery, async communication, observability etc. but one the other hand fails to implement these concepts in what I would consider a production-grade example.
+However I can still recommend this literature to those with no prior experience with microservices.
 
 ## Todos
 - dockerize the serivces
 - implement graceful shutdown in each service and make sure to inform kafka in case of service shutdown to prevent message loss
-- implement a solution for distributed tracing
-- save logs and telemetric data in a seperate database
+- implement a solution for observability and save logs and telemetric data in a seperate database
 - add Prometheus/Grafana to visualize telemetric data
 - send feedback to author
 
