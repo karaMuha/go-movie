@@ -9,12 +9,14 @@ import (
 )
 
 type CraeteMetadataCommand struct {
-	repo driven.IMetadataRepository
+	repo     driven.IMetadataRepository
+	producer driven.IMessageProducer
 }
 
-func NewCreateMetadataCommand(repo driven.IMetadataRepository) CraeteMetadataCommand {
+func NewCreateMetadataCommand(repo driven.IMetadataRepository, producer driven.IMessageProducer) CraeteMetadataCommand {
 	return CraeteMetadataCommand{
-		repo: repo,
+		repo:     repo,
+		producer: producer,
 	}
 }
 
@@ -28,6 +30,13 @@ func (c *CraeteMetadataCommand) CreateMetadata(ctx context.Context, cmd *metadat
 	if err != nil {
 		return nil, err
 	}
+
+	event := metadataModel.MetadataEvent{
+		ID:         metadata.ID,
+		RecordType: metadataModel.RecordTypeMovie,
+		EventType:  metadataModel.MetadataEventTypeSubmitted,
+	}
+	_ = c.producer.PublishMetadataSubmittedEvent(event)
 
 	return metadata, nil
 }

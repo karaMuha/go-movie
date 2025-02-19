@@ -13,6 +13,7 @@ type IApplication interface {
 
 type ICommands interface {
 	SubmitRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) error
+	SubmitMetadata(cmd *ratingmodel.AggregatedRating)
 }
 
 type IQueries interface {

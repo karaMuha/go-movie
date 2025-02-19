@@ -9,7 +9,7 @@ type RecordID string
 type RecordType string
 
 // Existing record types.
-const RecordTypeMovie = RecordType("movie")
+const RecordTypeMovie RecordType = "movie"
 
 type UserID string
 
@@ -27,13 +27,19 @@ type Rating struct {
 
 type RatingEventType string
 
-const RatingEventTypeSubmit = "submit"
-const RatingEventTypeDelete = "delete"
+const RatingEventTypeSubmit RatingEventType = "submit"
+const RatingEventTypeDelete RatingEventType = "delete"
 
 type RatingEvent struct {
-	RecordID   string `json:"record_id"`
-	RecordType string `json:"record_type"`
-	UserID     string `json:"user_id"`
-	Value      int    `json:"value"`
-	EventType  RatingEventType
+	RecordID   string          `json:"record_id"`
+	RecordType string          `json:"record_type"`
+	UserID     string          `json:"user_id"`
+	Value      int             `json:"value"`
+	EventType  RatingEventType `json:"event_type"`
+}
+
+type AggregatedRating struct {
+	ID         string  `json:"id"`
+	RecordType string  `json:"record_type"`
+	Rating     float64 `json:"rating"`
 }

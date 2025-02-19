@@ -5,29 +5,30 @@ import (
 	"encoding/json"
 	"log"
 
+	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 	"github.com/segmentio/kafka-go"
 )
 
-type MessageConsumer struct {
+type MetadataEventConsumer struct {
 	app    driving.IApplication
 	Reader *kafka.Reader
 }
 
-func NewMessageConsumer(app driving.IApplication, address string, topic string, gourpID string) *MessageConsumer {
+func NewMetadataEventConsumer(app driving.IApplication, address string, topic string, gourpID string) *MetadataEventConsumer {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{address},
 		Topic:   topic,
 		GroupID: gourpID,
 	})
-	return &MessageConsumer{
+	return &MetadataEventConsumer{
 		app:    app,
 		Reader: reader,
 	}
 }
 
-func (c *MessageConsumer) StartReading() {
+func (c *MetadataEventConsumer) StartReadingMetadataEvents() {
 	for {
 		message, err := c.Reader.ReadMessage(context.Background())
 		if err != nil {
@@ -35,7 +36,7 @@ func (c *MessageConsumer) StartReading() {
 			continue
 		}
 
-		var event ratingmodel.RatingEvent
+		var event metadataModel.MetadataEvent
 		err = json.Unmarshal(message.Value, &event)
 		if err != nil {
 			log.Printf("Unmarshal error on event: %v", err)
@@ -43,12 +44,10 @@ func (c *MessageConsumer) StartReading() {
 		}
 
 		log.Printf("Read message: %v\n", event)
-
-		c.app.SubmitRating(context.Background(), ratingmodel.RecordID(event.RecordID), ratingmodel.RecordType(event.RecordType), &ratingmodel.Rating{
-			RecordID:   event.RecordID,
-			RecordType: event.RecordType,
-			UserID:     event.UserID,
-			Value:      event.Value,
+		c.app.SubmitMetadata(&ratingmodel.AggregatedRating{
+			ID:         event.ID,
+			RecordType: string(event.RecordType),
+			Rating:     0.0,
 		})
 	}
 }
