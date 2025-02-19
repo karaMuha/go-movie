@@ -16,19 +16,21 @@ var _ driving.IApplication = (*Application)(nil)
 
 type appCommands struct {
 	commands.SubmitRatingCommand
+	commands.SubmitMetadataCommand
 }
 
 type appQueries struct {
 	queries.GetAggregatedRatingQuery
 }
 
-func New(ratingRepo driven.IRatingRepository) Application {
+func New(ratingRepo driven.IRatingRepository, metadataRepo driven.IMetadatarepository) Application {
 	return Application{
 		appCommands: appCommands{
-			SubmitRatingCommand: commands.NewSubmitRatingCommand(ratingRepo),
+			SubmitRatingCommand:   commands.NewSubmitRatingCommand(ratingRepo, metadataRepo),
+			SubmitMetadataCommand: commands.NewSubmitMetadataCommand(metadataRepo),
 		},
 		appQueries: appQueries{
-			GetAggregatedRatingQuery: queries.NewGetAggregatedRatingQuery(ratingRepo),
+			GetAggregatedRatingQuery: queries.NewGetAggregatedRatingQuery(ratingRepo, metadataRepo),
 		},
 	}
 }

@@ -28,7 +28,7 @@ func (h *RatingHandler) GetAggregatedRating(ctx context.Context, req *pb.GetAggr
 		return nil, status.Errorf(codes.InvalidArgument, "nil req or empty record id or empty record type")
 	}
 
-	rating, err := h.app.GetAggregatedRating(ctx, ratingmodel.RecordID(req.RecordId), ratingmodel.RecordType(req.RecordType))
+	rating, amountRatings, err := h.app.GetAggregatedRating(ctx, ratingmodel.RecordID(req.RecordId), ratingmodel.RecordType(req.RecordType))
 
 	if errors.Is(err, domain.ErrNotFound) {
 		return nil, status.Errorf(codes.NotFound, err.Error())
@@ -39,7 +39,8 @@ func (h *RatingHandler) GetAggregatedRating(ctx context.Context, req *pb.GetAggr
 	}
 
 	return &pb.GetAggregatedRatingResponse{
-		RatingValue: rating,
+		RatingValue:  rating,
+		AmountRating: int32(amountRatings),
 	}, nil
 }
 

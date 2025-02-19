@@ -66,6 +66,8 @@ func setupRestEndpoints(mux *http.ServeMux, movieHandlerV1 rest.MovieHandlerV1) 
 	movieV1 := http.NewServeMux()
 	movieV1.HandleFunc("GET /get-movie-details", movieHandlerV1.HandleGetMovieDetails)
 	movieV1.HandleFunc("POST /submit-rating", movieHandlerV1.HandleSubmitRating)
+	movieV1.HandleFunc("GET /get-metadata", movieHandlerV1.HandleGetMetadata)
+	movieV1.HandleFunc("POST /submit-metadata", movieHandlerV1.HandleSubmitMetadata)
 
 	mux.Handle("/v1/", http.StripPrefix("/v1", movieV1))
 }

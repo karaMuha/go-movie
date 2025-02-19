@@ -35,3 +35,22 @@ func (g *MetadataGateway) GetMetadata(ctx context.Context, movieID string) (*met
 
 	return metadataModel.MetadataFromProto(resp.Metadata), nil
 }
+
+func (g *MetadataGateway) SubmitMetadata(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, error) {
+	conn, err := grpcutil.ServiceConnection(ctx, "metadata", g.registry)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	client := pb.NewMetadataServiceClient(conn)
+	params := pb.SubmitMetadataRequest{
+		Metadata: metadataModel.MetadataToProto(metadata),
+	}
+	resp, err := client.SubmitMetadata(ctx, &params)
+	if err != nil {
+		return nil, err
+	}
+
+	return metadataModel.MetadataFromProto(resp.Metadata), nil
+}

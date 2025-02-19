@@ -24,24 +24,25 @@ func NewGetMovieDetailsQuery(metadataGateway driven.IMetadataGateway, ratingGate
 
 func (q *GetMovieDetailsQuery) GetMovieDetails(ctx context.Context, movieID string) (*movieModel.MovieDetails, error) {
 	metadata, err := q.metadataGateway.GetMetadata(ctx, movieID)
-	if strings.Contains(err.Error(), "NotFound") {
-		return nil, domain.ErrNotFound
-	}
 	if err != nil {
+		if strings.Contains(err.Error(), "NotFound") {
+			return nil, domain.ErrNotFound
+		}
 		return nil, err
 	}
 
-	rating, err := q.ratingGateway.GetAggregatedRating(ctx, ratingmodel.RecordID(movieID), ratingmodel.RecordTypeMovie)
-	if strings.Contains(err.Error(), "NotFound") {
-		return nil, domain.ErrNotFound
-	}
+	rating, amountRatings, err := q.ratingGateway.GetAggregatedRating(ctx, ratingmodel.RecordID(movieID), ratingmodel.RecordTypeMovie)
 	if err != nil {
+		if strings.Contains(err.Error(), "NotFound") {
+			return nil, domain.ErrNotFound
+		}
 		return nil, err
 	}
 
 	movieDetails := movieModel.MovieDetails{
-		Rating:   rating,
-		Metadata: *metadata,
+		Rating:        rating,
+		AmountRatings: amountRatings,
+		Metadata:      *metadata,
 	}
 
 	return &movieDetails, nil

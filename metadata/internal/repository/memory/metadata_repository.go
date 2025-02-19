@@ -4,25 +4,26 @@ import (
 	"context"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/karaMuha/go-movie/metadata/internal/core/domain"
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driven"
-	model "github.com/karaMuha/go-movie/metadata/pkg"
+	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 )
 
 type MetadataRepository struct {
 	sync.RWMutex
-	data map[string]*model.Metadata
+	data map[string]*metadataModel.Metadata
 }
 
 var _ driven.IMetadataRepository = (*MetadataRepository)(nil)
 
 func New() *MetadataRepository {
 	return &MetadataRepository{
-		data: make(map[string]*model.Metadata),
+		data: make(map[string]*metadataModel.Metadata),
 	}
 }
 
-func (r *MetadataRepository) Load(ctx context.Context, id string) (*model.Metadata, error) {
+func (r *MetadataRepository) Load(ctx context.Context, id string) (*metadataModel.Metadata, error) {
 	r.RLock()
 	defer r.RUnlock()
 	m, ok := r.data[id]
@@ -33,9 +34,11 @@ func (r *MetadataRepository) Load(ctx context.Context, id string) (*model.Metada
 	return m, nil
 }
 
-func (r *MetadataRepository) Save(ctx context.Context, id string, metadata *model.Metadata) error {
+func (r *MetadataRepository) Save(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, error) {
+	id := uuid.NewString()
+	metadata.ID = id
 	r.Lock()
 	defer r.Unlock()
 	r.data[id] = metadata
-	return nil
+	return metadata, nil
 }

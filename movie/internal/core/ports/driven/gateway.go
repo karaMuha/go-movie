@@ -9,9 +9,10 @@ import (
 
 type IMetadataGateway interface {
 	GetMetadata(ctx context.Context, movieID string) (*metadataModel.Metadata, error)
+	SubmitMetadata(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, error)
 }
 
 type IRatingGateway interface {
-	GetAggregatedRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) (float64, error)
+	GetAggregatedRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) (float64, int, error)
 	SubmitRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) error
 }

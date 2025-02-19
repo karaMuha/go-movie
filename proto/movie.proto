@@ -31,6 +31,7 @@ message SubmitMetadataRequest {
 }
 
 message SubmitMetadataResponse {
+  Metadata metadata = 1;
 }
 
 service RatingService {
@@ -45,6 +46,7 @@ message GetAggregatedRatingRequest {
 
 message GetAggregatedRatingResponse {
   double rating_value = 1;
+  int32 amount_rating = 2;
 }
 
 message SubmitRatingRequest {

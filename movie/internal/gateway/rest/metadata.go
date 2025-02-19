@@ -59,3 +59,7 @@ func (g *MetadataGateway) GetMetadata(ctx context.Context, movieID string) (*met
 	}
 	return v, nil
 }
+
+func (g *MetadataGateway) SubmitMetadata(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, error) {
+	return nil, nil
+}

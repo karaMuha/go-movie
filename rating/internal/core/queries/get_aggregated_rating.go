@@ -8,26 +8,21 @@ import (
 )
 
 type GetAggregatedRatingQuery struct {
-	ratingRepo driven.IRatingRepository
+	ratingRepo   driven.IRatingRepository
+	metadataRepo driven.IMetadatarepository
 }
 
-func NewGetAggregatedRatingQuery(ratingRepo driven.IRatingRepository) GetAggregatedRatingQuery {
+func NewGetAggregatedRatingQuery(ratingRepo driven.IRatingRepository, metadataRepo driven.IMetadatarepository) GetAggregatedRatingQuery {
 	return GetAggregatedRatingQuery{
-		ratingRepo: ratingRepo,
+		ratingRepo:   ratingRepo,
+		metadataRepo: metadataRepo,
 	}
 }
 
-func (q *GetAggregatedRatingQuery) GetAggregatedRating(ctx context.Context, recordID model.RecordID, recordType model.RecordType) (float64, error) {
-	ratings, err := q.ratingRepo.Load(ctx, recordID, recordType)
+func (q *GetAggregatedRatingQuery) GetAggregatedRating(ctx context.Context, recordID model.RecordID, recordType model.RecordType) (float64, int, error) {
+	aggregatedRating, err := q.metadataRepo.Load(ctx, string(recordID), string(recordType))
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
-
-	sum := float64(0)
-	for _, r := range ratings {
-		sum += float64(r.Value)
-	}
-
-	aggregatedRating := sum / float64(len(ratings))
-	return aggregatedRating, nil
+	return aggregatedRating.Rating, aggregatedRating.AmountRatings, nil
 }
