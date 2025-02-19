@@ -39,7 +39,8 @@ type RatingEvent struct {
 }
 
 type AggregatedRating struct {
-	ID         string  `json:"id"`
-	RecordType string  `json:"record_type"`
-	Rating     float64 `json:"rating"`
+	ID            string  `json:"id"`
+	RecordType    string  `json:"record_type"`
+	Rating        float64 `json:"rating"`
+	AmountRatings int     `json:"amount_ratings"`
 }

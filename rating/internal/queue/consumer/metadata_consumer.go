@@ -45,9 +45,10 @@ func (c *MetadataEventConsumer) StartReadingMetadataEvents() {
 
 		log.Printf("Read message: %v\n", event)
 		c.app.SubmitMetadata(&ratingmodel.AggregatedRating{
-			ID:         event.ID,
-			RecordType: string(event.RecordType),
-			Rating:     0.0,
+			ID:            event.ID,
+			RecordType:    string(event.RecordType),
+			Rating:        0.0,
+			AmountRatings: 0,
 		})
 	}
 }

@@ -26,15 +26,15 @@ func NewRatginGateway(registry discovery.Registry) RatingGateway {
 	}
 }
 
-func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) (float64, error) {
+func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) (float64, int, error) {
 	addresses, err := g.registry.ServiceAddresses(ctx, "rating")
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	url := fmt.Sprintf("http://%s/v1/get-rating", addresses[rand.Intn(len(addresses))])
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
 	req = req.WithContext(ctx)
@@ -44,20 +44,20 @@ func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID rating
 	req.URL.RawQuery = values.Encode()
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusNotFound {
-		return 0, domain.ErrNotFound
+		return 0, 0, domain.ErrNotFound
 	} else if resp.StatusCode/100 != 2 {
-		return 0, fmt.Errorf("non-2xx response: %v", resp)
+		return 0, 0, fmt.Errorf("non-2xx response: %v", resp)
 	}
 	var v float64
 	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
-		return 0, err
+		return 0, 0, err
 	}
-	return v, nil
+	return v, 0, nil
 }
 
 func (g *RatingGateway) SubmitRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) error {

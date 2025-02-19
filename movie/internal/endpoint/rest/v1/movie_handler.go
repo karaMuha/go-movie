@@ -86,8 +86,8 @@ func (h *MovieHandlerV1) HandleGetMetadata(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	w.Write(res)
 	w.WriteHeader(http.StatusOK)
+	w.Write(res)
 }
 
 func (h *MovieHandlerV1) HandleSubmitMetadata(w http.ResponseWriter, r *http.Request) {
@@ -110,6 +110,6 @@ func (h *MovieHandlerV1) HandleSubmitMetadata(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	w.Write(res)
 	w.WriteHeader(http.StatusCreated)
+	w.Write(res)
 }
