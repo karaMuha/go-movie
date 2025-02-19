@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driving"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
@@ -63,4 +64,52 @@ func (h *MovieHandlerV1) HandleSubmitRating(w http.ResponseWriter, r *http.Reque
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (h *MovieHandlerV1) HandleGetMetadata(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	metadata, err := h.app.GetMetadata(r.Context(), id)
+
+	if errors.Is(err, domain.ErrNotFound) {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	res, err := json.Marshal(&metadata)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(res)
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *MovieHandlerV1) HandleSubmitMetadata(w http.ResponseWriter, r *http.Request) {
+	var metadata metadataModel.Metadata
+	err := json.NewDecoder(r.Body).Decode(&metadata)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	resp, err := h.app.SubmitMetadata(r.Context(), &metadata)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	res, err := json.Marshal(&resp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(res)
+	w.WriteHeader(http.StatusCreated)
 }

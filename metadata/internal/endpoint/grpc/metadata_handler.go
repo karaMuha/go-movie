@@ -42,3 +42,20 @@ func (h *MetadataHandler) GetMetadata(ctx context.Context, req *pb.GetMetadataRe
 		Metadata: metadataModel.MetadataToProto(metadata),
 	}, nil
 }
+
+func (h *MetadataHandler) SubmitMetadata(ctx context.Context, req *pb.SubmitMetadataRequest) (*pb.SubmitMetadataResponse, error) {
+	cmd := metadataModel.Metadata{
+		Title:       req.Metadata.Title,
+		Description: req.Metadata.Description,
+		Director:    req.Metadata.Director,
+	}
+
+	metadata, err := h.app.CreateMetadata(ctx, &cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.SubmitMetadataResponse{
+		Metadata: metadataModel.MetadataToProto(metadata),
+	}, nil
+}

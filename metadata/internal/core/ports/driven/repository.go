@@ -3,10 +3,10 @@ package driven
 import (
 	"context"
 
-	model "github.com/karaMuha/go-movie/metadata/pkg"
+	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 )
 
 type IMetadataRepository interface {
-	Save(ctx context.Context, id string, metadata *model.Metadata) error
-	Load(ctx context.Context, id string) (*model.Metadata, error)
+	Save(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, error)
+	Load(ctx context.Context, id string) (*metadataModel.Metadata, error)
 }

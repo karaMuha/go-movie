@@ -9,6 +9,7 @@ import (
 
 type IMetadataGateway interface {
 	GetMetadata(ctx context.Context, movieID string) (*metadataModel.Metadata, error)
+	SubmitMetadata(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, error)
 }
 
 type IRatingGateway interface {

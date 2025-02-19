@@ -16,10 +16,12 @@ var _ driving.IApplication = (*Application)(nil)
 
 type appCommands struct {
 	commands.SubmitRatingCommand
+	commands.SubmitMetadataCommand
 }
 
 type appQueries struct {
 	queries.GetMovieDetailsQuery
+	queries.GetMetadataQuery
 }
 
 func New(
@@ -29,10 +31,12 @@ func New(
 ) Application {
 	return Application{
 		appCommands: appCommands{
-			SubmitRatingCommand: commands.NewSubmitRatingCommand(ratingGateway, messageProducer),
+			SubmitRatingCommand:   commands.NewSubmitRatingCommand(ratingGateway, messageProducer),
+			SubmitMetadataCommand: commands.NewSubmitMetadataCommand(metadataGateway),
 		},
 		appQueries: appQueries{
 			GetMovieDetailsQuery: queries.NewGetMovieDetailsQuery(metadataGateway, ratingGateway),
+			GetMetadataQuery:     queries.NewGetMetadataQuery(metadataGateway),
 		},
 	}
 }
