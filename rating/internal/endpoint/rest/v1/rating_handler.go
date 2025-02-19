@@ -39,7 +39,7 @@ func (h *RatingHandlerV1) HandleGetRating(w http.ResponseWriter, r *http.Request
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	aggregatedRating, err := h.app.GetAggregatedRating(ctx, recordID, recordType)
+	aggregatedRating, _, err := h.app.GetAggregatedRating(ctx, recordID, recordType)
 	if errors.Is(err, domain.ErrNotFound) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return

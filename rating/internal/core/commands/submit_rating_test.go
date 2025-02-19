@@ -31,7 +31,8 @@ func (s *SubmitRatingTestSuite) SetupSuite() {
 	require.NoError(s.T(), err)
 	s.dbHandler = dbHandler
 	ratingsRepository := postgres_repo.NewRatingRepository(s.dbHandler)
-	s.cmd = NewSubmitRatingCommand(&ratingsRepository)
+	metadataRepository := postgres_repo.NewMetadataRepository(s.dbHandler)
+	s.cmd = NewSubmitRatingCommand(&ratingsRepository, &metadataRepository)
 }
 
 // clear tables between tests to avoid conflicts and side effects

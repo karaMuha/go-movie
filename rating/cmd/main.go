@@ -57,12 +57,17 @@ func main() {
 	}
 	ratingPostgresRepo := postgres_repo.NewRatingRepository(db) */
 
-	ratingRepo := memory.New()
-	app := core.New(&ratingRepo)
+	ratingRepo := memory.NewRatingsRepository()
+	metadataRepo := memory.NewMetadataRepository()
+	app := core.New(&ratingRepo, &metadataRepo)
 
-	consumer := consumer.NewMessageConsumer(&app, config.KafkaAddress, "ratings", "rating")
-	defer consumer.Reader.Close()
-	go consumer.StartReading()
+	ratingConsumer := consumer.NewRatingEventConsumer(&app, config.KafkaAddress, "ratings", "rating")
+	defer ratingConsumer.RatingReader.Close()
+	go ratingConsumer.StartReadingRatingEvents()
+
+	metadataConsumer := consumer.NewMetadataEventConsumer(&app, config.KafkaAddress, "metadata", "metadata")
+	defer metadataConsumer.Reader.Close()
+	go metadataConsumer.StartReadingMetadataEvents()
 
 	// startRest(&app, port)
 	startGrpc(&app, config.Domain, config.Port)

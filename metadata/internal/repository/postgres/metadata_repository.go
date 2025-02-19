@@ -45,12 +45,20 @@ func (m *MetadataRepository) Load(ctx context.Context, id string) (*metadataMode
 	return &metadata, nil
 }
 
-func (m *MetadataRepository) Save(ctx context.Context, id string, metadata *metadataModel.Metadata) error {
+func (m *MetadataRepository) Save(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, error) {
 	query := `
 		INSERT INTO metadata (title, description, director)
 		VALUES ($1, $2, $3)
+		RETURNING id;
 	`
-	_, err := m.db.ExecContext(ctx, query, metadata.Title, metadata.Description, metadata.Director)
+	row := m.db.QueryRowContext(ctx, query, metadata.Title, metadata.Description, metadata.Director)
 
-	return err
+	var id string
+	if err := row.Scan(&id); err != nil {
+		return nil, err
+	}
+
+	metadata.ID = id
+
+	return metadata, nil
 }

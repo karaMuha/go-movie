@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
-	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
+	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driven"
+	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -29,7 +29,7 @@ func NewMessageProducer(address string, topic string) *MessageProducer {
 	}
 }
 
-func (p *MessageProducer) PublishRatingSubmittedEvent(event ratingmodel.RatingEvent) error {
+func (p *MessageProducer) PublishMetadataSubmittedEvent(event metadataModel.MetadataEvent) error {
 	encodedEvent, err := json.Marshal(event)
 	if err != nil {
 		log.Printf("Error encoding event before publishing: %v\n", err)

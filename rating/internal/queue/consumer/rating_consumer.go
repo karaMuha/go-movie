@@ -10,26 +10,26 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-type MessageConsumer struct {
-	app    driving.IApplication
-	Reader *kafka.Reader
+type RatingEventConsumer struct {
+	app          driving.IApplication
+	RatingReader *kafka.Reader
 }
 
-func NewMessageConsumer(app driving.IApplication, address string, topic string, gourpID string) *MessageConsumer {
+func NewRatingEventConsumer(app driving.IApplication, address string, topic string, gourpID string) *RatingEventConsumer {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{address},
 		Topic:   topic,
 		GroupID: gourpID,
 	})
-	return &MessageConsumer{
-		app:    app,
-		Reader: reader,
+	return &RatingEventConsumer{
+		app:          app,
+		RatingReader: reader,
 	}
 }
 
-func (c *MessageConsumer) StartReading() {
+func (c *RatingEventConsumer) StartReadingRatingEvents() {
 	for {
-		message, err := c.Reader.ReadMessage(context.Background())
+		message, err := c.RatingReader.ReadMessage(context.Background())
 		if err != nil {
 			log.Printf("error reading message from queue: %v\n", err)
 			continue

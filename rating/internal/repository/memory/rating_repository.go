@@ -14,7 +14,7 @@ type RatingRepository struct {
 
 var _ driven.IRatingRepository = (*RatingRepository)(nil)
 
-func New() RatingRepository {
+func NewRatingsRepository() RatingRepository {
 	return RatingRepository{
 		data: make(map[model.RecordType]map[model.RecordID][]*model.Rating),
 	}

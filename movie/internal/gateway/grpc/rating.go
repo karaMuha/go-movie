@@ -20,10 +20,10 @@ func NewRatingGateway(registry discovery.Registry) RatingGateway {
 	return RatingGateway{registry: registry}
 }
 
-func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) (float64, error) {
+func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) (float64, int, error) {
 	conn, err := grpcutil.ServiceConnection(ctx, "rating", g.registry)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	defer conn.Close()
 
@@ -33,10 +33,10 @@ func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID rating
 		RecordType: string(ratingmodel.RecordTypeMovie),
 	})
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
-	return resp.RatingValue, nil
+	return resp.RatingValue, int(resp.AmountRating), nil
 }
 
 func (g *RatingGateway) SubmitRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) error {
