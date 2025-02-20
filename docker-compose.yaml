@@ -30,9 +30,9 @@ services:
       - 5432:5432
     restart: always
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=metadata_db
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "secret"
+      POSTGRES_DB: "metadata_db"
     volumes:
       - ./data/metadata/:/var/lib/postgresql/data
       - ./dbscripts/metadata_public_schema.sql:/docker-entrypoint-initdb.d/public_schema.sql
@@ -49,3 +49,21 @@ services:
     volumes:
       - ./data/ratings/:/var/lib/postgresql/data
       - ./dbscripts/ratings_public_schema.sql:/docker-entrypoint-initdb.d/public_schema.sql
+
+  metadata-service:
+    build:
+      context: .
+      dockerfile: ./metadata/Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - DOMAIN=localhost
+      - PORT=:8080
+      - CONSUL_ADDRESS=host.docker.internal:8500
+      - KAFKA_ADDRESS=host.docker.internal:9092
+      - DB_CONNECTION=host=host.docker.internal port=5432 user=admin password=secret dbname=metadata_db sslmode=disable
+      - DB_DRIVER=postgres

@@ -33,6 +33,7 @@ func (r *ConsulRegistry) Register(ctx context.Context, instanceID string, servic
 	if len(parts) != 2 {
 		return errors.New("hostPort must be in a form of <host>:<port>, example: localhost:8081")
 	}
+
 	port, err := strconv.Atoi(parts[1])
 	if err != nil {
 		return err

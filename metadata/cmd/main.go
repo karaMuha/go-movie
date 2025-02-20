@@ -16,6 +16,7 @@ import (
 	"github.com/karaMuha/go-movie/metadata/internal/queue/producer"
 	"github.com/karaMuha/go-movie/metadata/internal/repository/memory"
 	"github.com/karaMuha/go-movie/pb"
+	"github.com/karaMuha/go-movie/pkg/database/postgres"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
 	"google.golang.org/grpc"
@@ -26,17 +27,18 @@ import (
 const serviceName = "metadata"
 
 func main() {
-	log.Println("Starting movie metadata service")
+	log.Println("Starting metadata service")
 	config := config.NewConfig()
 
 	registry, err := consul.NewConsulRegistry(config.ConsulAddress)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	ctx := context.Background()
 	instanceID := discovery.GenerateInstanceID(serviceName)
-	if err := registry.Register(ctx, instanceID, serviceName, fmt.Sprintf("localhost%s", config.Port)); err != nil {
-		panic(err)
+	hostPort := fmt.Sprintf("%s%s", config.Domain, config.Port)
+	if err := registry.Register(ctx, instanceID, serviceName, hostPort); err != nil {
+		log.Fatalln(err)
 	}
 
 	go func() {
@@ -50,12 +52,13 @@ func main() {
 
 	defer registry.Deregister(ctx, instanceID, serviceName)
 
-	/* connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.DbHost, config.DbPort, config.DbUser, config.DbPassword, config.DbName, config.DbSslMode)
-	db, err := postgres.ConnectToDb(config.DbDriver, connectionString)
+	db, err := postgres.ConnectToDb(config.DbDriver, config.DbConnection)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
-	metadataPostgresRepo := postgres_repo.NewMetadataRepository(db) */
+	defer db.Close()
+	fmt.Println("Connected to database")
+	//metadataPostgresRepo := postgres_repo.NewMetadataRepository(db)
 
 	metadataRepo := memory.New()
 	producer := producer.NewMessageProducer(config.KafkaAddress, "metadata")
