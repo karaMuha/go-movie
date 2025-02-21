@@ -27,14 +27,14 @@ func main() {
 
 	registry, err := consul.NewConsulRegistry(config.ConsulAddress)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	ctx := context.Background()
 	instanceID := discovery.GenerateInstanceID(serviceName)
-	err = registry.Register(ctx, instanceID, serviceName, fmt.Sprintf("%s%s", config.Domain, config.Port))
+	err = registry.Register(ctx, instanceID, serviceName, fmt.Sprintf("%s%s", "host.docker.internal", config.PortExposed))
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	go func() {
@@ -49,8 +49,6 @@ func main() {
 
 	defer registry.Deregister(ctx, instanceID, serviceName)
 
-	//metadataGateway := restgateway.NewMetadataGateway(registry)
-	//ratingGateway := restgateway.NewRatginGateway(registry)
 	metadataGateway := grpcgateway.NewMetadataGateway(registry)
 	ratingGateway := grpcgateway.NewRatingGateway(registry)
 	producer := producer.NewMessageProducer(config.KafkaAddress, "ratings")
@@ -85,6 +83,6 @@ func startRest(app driving.IApplication, port string) {
 
 	err := server.ListenAndServe()
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }

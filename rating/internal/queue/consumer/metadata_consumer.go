@@ -20,7 +20,6 @@ func NewMetadataEventConsumer(app driving.IApplication, address string, topic st
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{address},
 		Topic:   topic,
-		GroupID: gourpID,
 	})
 	return &MetadataEventConsumer{
 		app:    app,

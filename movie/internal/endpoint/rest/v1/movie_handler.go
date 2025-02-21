@@ -28,17 +28,17 @@ func (h *MovieHandlerV1) HandleGetMovieDetails(w http.ResponseWriter, r *http.Re
 	movieID := r.URL.Query().Get("id")
 	movieDetails, err := h.app.GetMovieDetails(r.Context(), movieID)
 
-	if errors.Is(err, domain.ErrNotFound) {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-
 	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
 		log.Printf("GetMovieDetails error: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(movieDetails)
 	if err != nil {
 		log.Printf("Response encode error: %v\n", err)
@@ -86,6 +86,7 @@ func (h *MovieHandlerV1) HandleGetMetadata(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
@@ -110,6 +111,7 @@ func (h *MovieHandlerV1) HandleSubmitMetadata(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
 }
