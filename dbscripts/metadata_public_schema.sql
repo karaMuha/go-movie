@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS metadata(
 );
 
 CREATE TABLE IF NOT EXISTS metadata_created_event(
-  id UUID PRIMARY KEY NOT NULL,
+  id UUID KEY NOT NULL,
   record_type TEXT NOT NULL,
   event_type TEXT NOT NULL
+  PRIMARY KEY (id, record_type)
 );

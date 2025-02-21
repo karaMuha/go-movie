@@ -23,7 +23,7 @@ type appQueries struct {
 	queries.GetAggregatedRatingQuery
 }
 
-func New(ratingRepo driven.IRatingRepository, metadataRepo driven.IMetadatarepository) Application {
+func New(ratingRepo driven.IRatingRepository, metadataRepo driven.IAggregatedRatingRepository) Application {
 	return Application{
 		appCommands: appCommands{
 			SubmitRatingCommand:   commands.NewSubmitRatingCommand(ratingRepo, metadataRepo),

@@ -16,7 +16,7 @@ import (
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
 	grpchandler "github.com/karaMuha/go-movie/rating/internal/endpoint/grpc"
 	"github.com/karaMuha/go-movie/rating/internal/queue/consumer"
-	"github.com/karaMuha/go-movie/rating/internal/repository/memory"
+	postgres_repo "github.com/karaMuha/go-movie/rating/internal/repository/postgres"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
@@ -56,11 +56,10 @@ func main() {
 		log.Fatalln(err)
 	}
 	defer db.Close()
-	//ratingPostgresRepo := postgres_repo.NewRatingRepository(db)
 
-	ratingRepo := memory.NewRatingsRepository()
-	metadataRepo := memory.NewMetadataRepository()
-	app := core.New(&ratingRepo, &metadataRepo)
+	ratingRepo := postgres_repo.NewRatingRepository(db)
+	aggregatedRatingRepo := postgres_repo.NewAggregatedMetadataRepository(db)
+	app := core.New(&ratingRepo, &aggregatedRatingRepo)
 
 	ratingConsumer := consumer.NewRatingEventConsumer(&app, config.KafkaAddress, "ratings", "rating")
 	defer ratingConsumer.RatingReader.Close()
