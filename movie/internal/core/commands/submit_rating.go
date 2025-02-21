@@ -20,10 +20,10 @@ func NewSubmitRatingCommand(ratingGateway driven.IRatingGateway, messageProducer
 }
 
 func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, cmd *ratingmodel.Rating) error {
-	err := c.ratingGateway.SubmitRating(ctx, ratingmodel.RecordID(cmd.RecordID), ratingmodel.RecordType(cmd.RecordType), cmd)
+	/* err := c.ratingGateway.SubmitRating(ctx, ratingmodel.RecordID(cmd.RecordID), ratingmodel.RecordType(cmd.RecordType), cmd)
 	if err != nil {
 		return err
-	}
+	} */
 
 	event := &ratingmodel.RatingEvent{
 		RecordID:   cmd.RecordID,

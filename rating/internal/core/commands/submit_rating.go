@@ -29,6 +29,7 @@ func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, recordID model.R
 	aggregatedRating, err := c.metadataRepo.Load(ctx, string(recordID), string(recordType))
 	if err != nil {
 		// save in table for cronjob
+		return err
 	}
 
 	ratingSum := aggregatedRating.Rating * float64(aggregatedRating.AmountRatings)

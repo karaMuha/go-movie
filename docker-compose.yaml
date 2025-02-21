@@ -19,8 +19,8 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: localhost
-      KAFKA_CREATE_TOPICS: "ratings:1:1"
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_CREATE_TOPICS: "ratings:1:1,metadata:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
 
   metadata-db:
@@ -30,9 +30,9 @@ services:
       - 5432:5432
     restart: always
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=metadata_db
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "secret"
+      POSTGRES_DB: "metadata_db"
     volumes:
       - ./data/metadata/:/var/lib/postgresql/data
       - ./dbscripts/metadata_public_schema.sql:/docker-entrypoint-initdb.d/public_schema.sql
@@ -49,3 +49,58 @@ services:
     volumes:
       - ./data/ratings/:/var/lib/postgresql/data
       - ./dbscripts/ratings_public_schema.sql:/docker-entrypoint-initdb.d/public_schema.sql
+
+  metadata-service:
+    build:
+      context: .
+      dockerfile: ./metadata/Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - DOMAIN=localhost
+      - PORT=:8080
+      - PORT_EXPOSED=:8080
+      - CONSUL_ADDRESS=host.docker.internal:8500
+      - KAFKA_ADDRESS=kafka:9092
+      - DB_CONNECTION=host=host.docker.internal port=5432 user=admin password=secret dbname=metadata_db sslmode=disable
+      - DB_DRIVER=postgres
+
+  ratings-service:
+    build:
+      context: .
+      dockerfile: ./rating/Dockerfile
+    restart: always
+    ports:
+      - "8081:8080"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - DOMAIN=localhost
+      - PORT=:8080
+      - PORT_EXPOSED=:8081
+      - CONSUL_ADDRESS=host.docker.internal:8500
+      - KAFKA_ADDRESS=kafka:9092
+      - DB_CONNECTION=host=host.docker.internal port=5433 user=admin password=secret dbname=ratings_db sslmode=disable
+      - DB_DRIVER=postgres
+
+  movie-service:
+    build:
+      context: .
+      dockerfile: ./movie/Dockerfile
+    restart: always
+    ports:
+      - "8082:8080"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - DOMAIN=localhost
+      - PORT=:8080
+      - PORT_EXPOSED=:8082
+      - CONSUL_ADDRESS=host.docker.internal:8500
+      - KAFKA_ADDRESS=kafka:9092
