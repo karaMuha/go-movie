@@ -6,3 +6,9 @@ CREATE TABLE IF NOT EXISTS metadata(
   description TEXT,
   director TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS metadata_created_event(
+  id UUID PRIMARY KEY NOT NULL,
+  record_type TEXT NOT NULL,
+  event_type TEXT NOT NULL
+);
