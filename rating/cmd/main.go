@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"net/http"
 	"time"
 
 	"github.com/karaMuha/go-movie/pb"
+	"github.com/karaMuha/go-movie/pkg/database/postgres"
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
 	"github.com/karaMuha/go-movie/rating/config"
 	"github.com/karaMuha/go-movie/rating/internal/core"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
 	grpchandler "github.com/karaMuha/go-movie/rating/internal/endpoint/grpc"
-	"github.com/karaMuha/go-movie/rating/internal/endpoint/rest/v1"
 	"github.com/karaMuha/go-movie/rating/internal/queue/consumer"
 	"github.com/karaMuha/go-movie/rating/internal/repository/memory"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 
 	_ "github.com/lib/pq"
 )
@@ -31,12 +31,13 @@ func main() {
 
 	registry, err := consul.NewConsulRegistry(config.ConsulAddress)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	ctx := context.Background()
 	instanceID := discovery.GenerateInstanceID(serviceName)
-	if err := registry.Register(ctx, instanceID, serviceName, fmt.Sprintf("localhost%s", config.Port)); err != nil {
-		panic(err)
+	hostPort := fmt.Sprintf("%s%s", "ratings-service", config.PortExposed)
+	if err := registry.Register(ctx, instanceID, serviceName, hostPort); err != nil {
+		log.Fatalln(err)
 	}
 
 	go func() {
@@ -50,12 +51,12 @@ func main() {
 
 	defer registry.Deregister(ctx, instanceID, serviceName)
 
-	/* connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", config.DbHost, config.DbPort, config.DbUser, config.DbPassword, config.DbName, config.DbSslMode)
-	db, err := postgres.ConnectToDb(config.DbDriver, connectionString)
+	db, err := postgres.ConnectToDb(config.DbDriver, config.DbConnection)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
-	ratingPostgresRepo := postgres_repo.NewRatingRepository(db) */
+	defer db.Close()
+	//ratingPostgresRepo := postgres_repo.NewRatingRepository(db)
 
 	ratingRepo := memory.NewRatingsRepository()
 	metadataRepo := memory.NewMetadataRepository()
@@ -70,11 +71,27 @@ func main() {
 	go metadataConsumer.StartReadingMetadataEvents()
 
 	// startRest(&app, port)
-	startGrpc(&app, config.Domain, config.Port)
+	startGrpc(&app, config.PortExposed)
 
 }
 
-func setupRestEndpoints(mux *http.ServeMux, ratingHandlerV1 rest.RatingHandlerV1) {
+func startGrpc(app driving.IApplication, port string) {
+	ratingHandler := grpchandler.NewRatingHandler(app)
+	listener, err := net.Listen("tcp", port)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	server := grpc.NewServer()
+	pb.RegisterRatingServiceServer(server, &ratingHandler)
+	reflection.Register(server)
+	err = server.Serve(listener)
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+/* func setupRestEndpoints(mux *http.ServeMux, ratingHandlerV1 rest.RatingHandlerV1) {
 	ratingV1 := http.NewServeMux()
 	ratingV1.HandleFunc("GET /get-rating", ratingHandlerV1.HandleGetRating)
 	ratingV1.HandleFunc("POST /submit-rating", ratingHandlerV1.HandleSubmitRating)
@@ -97,18 +114,4 @@ func startRest(app driving.IApplication, port int) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func startGrpc(app driving.IApplication, domain string, port string) {
-	ratingHandler := grpchandler.NewRatingHandler(app)
-	address := fmt.Sprintf("%s%s", domain, port)
-	listener, err := net.Listen("tcp", address)
-
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	server := grpc.NewServer()
-	pb.RegisterRatingServiceServer(server, &ratingHandler)
-	server.Serve(listener)
-}
+} */

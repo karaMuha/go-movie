@@ -19,7 +19,6 @@ func NewRatingEventConsumer(app driving.IApplication, address string, topic stri
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{address},
 		Topic:   topic,
-		GroupID: gourpID,
 	})
 	return &RatingEventConsumer{
 		app:          app,
