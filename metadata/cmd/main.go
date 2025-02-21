@@ -5,14 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"net/http"
 	"time"
 
 	"github.com/karaMuha/go-movie/metadata/config"
 	"github.com/karaMuha/go-movie/metadata/internal/core"
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driving"
 	grpchandler "github.com/karaMuha/go-movie/metadata/internal/endpoint/grpc"
-	"github.com/karaMuha/go-movie/metadata/internal/endpoint/rest/v1"
 	"github.com/karaMuha/go-movie/metadata/internal/queue/producer"
 	"github.com/karaMuha/go-movie/metadata/internal/repository/memory"
 	"github.com/karaMuha/go-movie/pb"
@@ -20,6 +18,7 @@ import (
 	"github.com/karaMuha/go-movie/pkg/discovery"
 	consul "github.com/karaMuha/go-movie/pkg/discovery/consul"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 
 	_ "github.com/lib/pq"
 )
@@ -36,7 +35,7 @@ func main() {
 	}
 	ctx := context.Background()
 	instanceID := discovery.GenerateInstanceID(serviceName)
-	hostPort := fmt.Sprintf("%s%s", config.Domain, config.Port)
+	hostPort := fmt.Sprintf("%s%s", "metadata-service", config.PortExposed)
 	if err := registry.Register(ctx, instanceID, serviceName, hostPort); err != nil {
 		log.Fatalln(err)
 	}
@@ -66,10 +65,28 @@ func main() {
 	app := core.New(metadataRepo, producer)
 
 	//startRest(&app, port)
-	startGrpc(&app, config.Domain, config.Port)
+	startGrpc(&app, config.Port)
 }
 
-func setupRestEndpoints(mux *http.ServeMux, metadataHandlerV1 rest.MetadataHandlerV1) {
+func startGrpc(app driving.IApplication, port string) {
+	metdataDataHandlerGrpc := grpchandler.NewMetadataHandler(app)
+	// address := fmt.Sprintf("%s%s", domain, port)
+
+	listener, err := net.Listen("tcp", port)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	server := grpc.NewServer()
+	pb.RegisterMetadataServiceServer(server, &metdataDataHandlerGrpc)
+	reflection.Register(server)
+	err = server.Serve(listener)
+	if err != nil {
+		log.Fatalf("Cannot start grpc server: %v\n", err)
+	}
+}
+
+/* func setupRestEndpoints(mux *http.ServeMux, metadataHandlerV1 rest.MetadataHandlerV1) {
 	metadataV1 := http.NewServeMux()
 	metadataV1.HandleFunc("GET /get-metadata", metadataHandlerV1.GetMetadata)
 
@@ -91,18 +108,4 @@ func startRest(app driving.IApplication, port string) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func startGrpc(app driving.IApplication, domain string, port string) {
-	metdataDataHandlerGrpc := grpchandler.NewMetadataHandler(app)
-	address := fmt.Sprintf("%s%s", domain, port)
-
-	listener, err := net.Listen("tcp", address)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	server := grpc.NewServer()
-	pb.RegisterMetadataServiceServer(server, &metdataDataHandlerGrpc)
-	server.Serve(listener)
-}
+} */

@@ -2,6 +2,7 @@ package grpcutil
 
 import (
 	"context"
+	"fmt"
 	"math/rand"
 
 	"github.com/karaMuha/go-movie/pkg/discovery"
@@ -12,6 +13,7 @@ import (
 // ServiceConnection attempts to select a random service instance and returns a gRPC connection to it.
 func ServiceConnection(ctx context.Context, serviceName string, registry discovery.Registry) (*grpc.ClientConn, error) {
 	addrs, err := registry.ServiceAddresses(ctx, serviceName)
+	fmt.Println(addrs)
 	if err != nil {
 		return nil, err
 	}

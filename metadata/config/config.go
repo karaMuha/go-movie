@@ -5,6 +5,7 @@ import "os"
 type Config struct {
 	Domain        string
 	Port          string
+	PortExposed   string
 	ConsulAddress string
 	KafkaAddress  string
 	DbDriver      string
@@ -33,6 +34,7 @@ func NewConfig() *Config {
 	flag.Parse() */
 	config.Domain = os.Getenv("DOMAIN")
 	config.Port = os.Getenv("PORT")
+	config.PortExposed = os.Getenv("PORT_EXPOSED")
 	config.ConsulAddress = os.Getenv("CONSUL_ADDRESS")
 	config.KafkaAddress = os.Getenv("KAFKA_ADDRESS")
 	config.DbDriver = os.Getenv("DB_DRIVER")

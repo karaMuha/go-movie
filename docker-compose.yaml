@@ -63,7 +63,25 @@ services:
     environment:
       - DOMAIN=localhost
       - PORT=:8080
+      - PORT_EXPOSED=:8080
       - CONSUL_ADDRESS=host.docker.internal:8500
       - KAFKA_ADDRESS=host.docker.internal:9092
       - DB_CONNECTION=host=host.docker.internal port=5432 user=admin password=secret dbname=metadata_db sslmode=disable
       - DB_DRIVER=postgres
+
+  movie-service:
+    build:
+      context: .
+      dockerfile: ./movie/Dockerfile
+    restart: always
+    ports:
+      - "8082:8080"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - DOMAIN=localhost
+      - PORT=:8080
+      - PORT_EXPOSED=:8082
+      - CONSUL_ADDRESS=host.docker.internal:8500
+      - KAFKA_ADDRESS=host.docker.internal:9092
