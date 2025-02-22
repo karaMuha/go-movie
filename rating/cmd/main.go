@@ -65,11 +65,11 @@ func main() {
 	defer ratingConsumer.RatingReader.Close()
 	go ratingConsumer.StartReadingRatingEvents()
 
-	metadataConsumer := consumer.NewMetadataEventConsumer(&app, config.KafkaAddress, "metadata", "metadata")
+	metadataEventRepository := postgres_repo.NewMetadataEventRepository(db)
+	metadataConsumer := consumer.NewMetadataEventConsumer(&app, config.KafkaAddress, "metadata", "metadata", &metadataEventRepository)
 	defer metadataConsumer.Reader.Close()
 	go metadataConsumer.StartReadingMetadataEvents()
 
-	// startRest(&app, port)
 	startGrpc(&app, config.PortExposed)
 
 }
@@ -89,28 +89,3 @@ func startGrpc(app driving.IApplication, port string) {
 		log.Fatalln(err)
 	}
 }
-
-/* func setupRestEndpoints(mux *http.ServeMux, ratingHandlerV1 rest.RatingHandlerV1) {
-	ratingV1 := http.NewServeMux()
-	ratingV1.HandleFunc("GET /get-rating", ratingHandlerV1.HandleGetRating)
-	ratingV1.HandleFunc("POST /submit-rating", ratingHandlerV1.HandleSubmitRating)
-
-	mux.Handle("/v1/", http.StripPrefix("/v1", ratingV1))
-}
-
-func startRest(app driving.IApplication, port int) {
-	ratingHandlerV1 := rest.NewRatingHandlerV1(app)
-
-	mux := http.NewServeMux()
-	setupRestEndpoints(mux, ratingHandlerV1)
-
-	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: mux,
-	}
-
-	err := server.ListenAndServe()
-	if err != nil {
-		panic(err)
-	}
-} */

@@ -34,7 +34,7 @@ func (c *Cronjob) Run() {
 			}
 			err = c.metadataEventRepo.Delete(context.Background(), event.ID)
 			if err != nil {
-				log.Printf("Saved event with ID %s published but could not be cleaned up: %v\n", event.ID, err)
+				log.Printf("Saved event with ID %s and record type %s published but could not be cleaned up: %v\n", event.ID, event.RecordType, err)
 			}
 		}
 		time.Sleep(1 * time.Minute)
