@@ -19,6 +19,7 @@ Even though I followed the authors example project there are some major differen
 - the books example saves each individual rating and calculates the average rating for a movie on each get request. I followed the CQRS principle by implementing a read and a write table. On each rating submission the rating is saved in the write table and the calculated average rating for that movie is updated in the read table. This leads to a performance increase because the average rating does not have to be calculated on each get request.
 
 ## How to run the app
+Clone the repo and run `make prepare`. This will generate the folder structure to persists data from the postgres containers and generate the protobuf code needed for gRPC. Then start Docker Desktop and run `make run`.
 
 ## Feedback
 My overall impression is that the target audience for this book are software engineers who have some production experience and want to make their first step into the world of microservices.
