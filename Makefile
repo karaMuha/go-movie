@@ -6,3 +6,8 @@ gen-pb:
 
 run:
 	docker-compose up -d
+
+prepare:
+	mkdir data/metadata; \
+	mkdir data/ratings; \
+	protoc -I=proto --go_out=. --go-grpc_out=. movie.proto
