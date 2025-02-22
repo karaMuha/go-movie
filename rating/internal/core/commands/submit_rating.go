@@ -9,14 +9,14 @@ import (
 )
 
 type SubmitRatingCommand struct {
-	ratingsRepo  driven.IRatingRepository
-	metadataRepo driven.IMetadatarepository
+	ratingsRepo          driven.IRatingRepository
+	aggregatedRatingRepo driven.IAggregatedRatingRepository
 }
 
-func NewSubmitRatingCommand(ratingsRepo driven.IRatingRepository, metadataRepo driven.IMetadatarepository) SubmitRatingCommand {
+func NewSubmitRatingCommand(ratingsRepo driven.IRatingRepository, metadataRepo driven.IAggregatedRatingRepository) SubmitRatingCommand {
 	return SubmitRatingCommand{
-		ratingsRepo:  ratingsRepo,
-		metadataRepo: metadataRepo,
+		ratingsRepo:          ratingsRepo,
+		aggregatedRatingRepo: metadataRepo,
 	}
 }
 
@@ -26,7 +26,7 @@ func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, recordID model.R
 		return err
 	}
 
-	aggregatedRating, err := c.metadataRepo.Load(ctx, string(recordID), string(recordType))
+	aggregatedRating, err := c.aggregatedRatingRepo.Load(ctx, string(recordID), string(recordType))
 	if err != nil {
 		// save in table for cronjob
 		return err
@@ -37,7 +37,7 @@ func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, recordID model.R
 	newRating := ratingSum / (float64(aggregatedRating.AmountRatings) + 1.0)
 	aggregatedRating.AmountRatings += 1
 	aggregatedRating.Rating = newRating
-	err = c.metadataRepo.Save(ctx, aggregatedRating)
+	err = c.aggregatedRatingRepo.Save(ctx, aggregatedRating)
 	if err != nil {
 		// save in table for cronjob
 	}

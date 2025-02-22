@@ -22,13 +22,16 @@ type appQueries struct {
 
 var _ driving.IApplication = (*Application)(nil)
 
-func New(repo driven.IMetadataRepository, producer driven.IMessageProducer) Application {
+func New(metadataRepo driven.IMetadataRepository,
+	producer driven.IMessageProducer,
+	metadataEventRepo driven.IMetadataEventRepository,
+) Application {
 	return Application{
 		appCommands: appCommands{
-			CraeteMetadataCommand: commands.NewCreateMetadataCommand(repo, producer),
+			CraeteMetadataCommand: commands.NewCreateMetadataCommand(metadataRepo, producer, metadataEventRepo),
 		},
 		appQueries: appQueries{
-			GetMetadataQuery: queries.NewGetMetadataQuery(repo),
+			GetMetadataQuery: queries.NewGetMetadataQuery(metadataRepo),
 		},
 	}
 }

@@ -10,9 +10,10 @@ import (
 	"github.com/karaMuha/go-movie/metadata/config"
 	"github.com/karaMuha/go-movie/metadata/internal/core"
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driving"
+	"github.com/karaMuha/go-movie/metadata/internal/cronjob"
 	grpchandler "github.com/karaMuha/go-movie/metadata/internal/endpoint/grpc"
 	"github.com/karaMuha/go-movie/metadata/internal/queue/producer"
-	"github.com/karaMuha/go-movie/metadata/internal/repository/memory"
+	postgres_repo "github.com/karaMuha/go-movie/metadata/internal/repository/postgres"
 	"github.com/karaMuha/go-movie/pb"
 	"github.com/karaMuha/go-movie/pkg/database/postgres"
 	"github.com/karaMuha/go-movie/pkg/discovery"
@@ -57,20 +58,23 @@ func main() {
 	}
 	defer db.Close()
 	fmt.Println("Connected to database")
-	//metadataPostgresRepo := postgres_repo.NewMetadataRepository(db)
 
-	metadataRepo := memory.New()
+	metadataRepo := postgres_repo.NewMetadataRepository(db)
+	metadataEventRepo := postgres_repo.NewMetadataEventRepository(db)
 	producer := producer.NewMessageProducer(config.KafkaAddress, "metadata")
 	defer producer.Writer.Close()
-	app := core.New(metadataRepo, producer)
+	app := core.New(&metadataRepo, producer, &metadataEventRepo)
+	cronjob := cronjob.NewCronjob(&metadataEventRepo, producer)
 
-	//startRest(&app, port)
+	// if events failed to be published they are saved in the database
+	// cronjob loops through the table each minute and tries to publish them
+	go cronjob.Run()
+
 	startGrpc(&app, config.Port)
 }
 
 func startGrpc(app driving.IApplication, port string) {
 	metdataDataHandlerGrpc := grpchandler.NewMetadataHandler(app)
-	// address := fmt.Sprintf("%s%s", domain, port)
 
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
@@ -85,27 +89,3 @@ func startGrpc(app driving.IApplication, port string) {
 		log.Fatalf("Cannot start grpc server: %v\n", err)
 	}
 }
-
-/* func setupRestEndpoints(mux *http.ServeMux, metadataHandlerV1 rest.MetadataHandlerV1) {
-	metadataV1 := http.NewServeMux()
-	metadataV1.HandleFunc("GET /get-metadata", metadataHandlerV1.GetMetadata)
-
-	mux.Handle("/v1/", http.StripPrefix("/v1", metadataV1))
-}
-
-func startRest(app driving.IApplication, port string) {
-	metadataHandlerV1 := rest.NewMetadataHandlerV1(app)
-
-	mux := http.NewServeMux()
-	setupRestEndpoints(mux, metadataHandlerV1)
-
-	server := &http.Server{
-		Addr:    port,
-		Handler: mux,
-	}
-
-	err := server.ListenAndServe()
-	if err != nil {
-		panic(err)
-	}
-} */

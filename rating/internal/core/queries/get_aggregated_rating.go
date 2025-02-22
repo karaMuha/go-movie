@@ -9,10 +9,10 @@ import (
 
 type GetAggregatedRatingQuery struct {
 	ratingRepo   driven.IRatingRepository
-	metadataRepo driven.IMetadatarepository
+	metadataRepo driven.IAggregatedRatingRepository
 }
 
-func NewGetAggregatedRatingQuery(ratingRepo driven.IRatingRepository, metadataRepo driven.IMetadatarepository) GetAggregatedRatingQuery {
+func NewGetAggregatedRatingQuery(ratingRepo driven.IRatingRepository, metadataRepo driven.IAggregatedRatingRepository) GetAggregatedRatingQuery {
 	return GetAggregatedRatingQuery{
 		ratingRepo:   ratingRepo,
 		metadataRepo: metadataRepo,
