@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"log"
 
 	"github.com/karaMuha/go-movie/metadata/internal/core/domain"
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driven"
@@ -9,14 +10,20 @@ import (
 )
 
 type CraeteMetadataCommand struct {
-	repo     driven.IMetadataRepository
-	producer driven.IMessageProducer
+	metadataRepo      driven.IMetadataRepository
+	metadataEventRepo driven.IMetadataEventRepository
+	producer          driven.IMessageProducer
 }
 
-func NewCreateMetadataCommand(repo driven.IMetadataRepository, producer driven.IMessageProducer) CraeteMetadataCommand {
+func NewCreateMetadataCommand(
+	repo driven.IMetadataRepository,
+	producer driven.IMessageProducer,
+	metadataEventRepo driven.IMetadataEventRepository,
+) CraeteMetadataCommand {
 	return CraeteMetadataCommand{
-		repo:     repo,
-		producer: producer,
+		metadataRepo:      repo,
+		metadataEventRepo: metadataEventRepo,
+		producer:          producer,
 	}
 }
 
@@ -26,7 +33,7 @@ func (c *CraeteMetadataCommand) CreateMetadata(ctx context.Context, cmd *metadat
 		return nil, err
 	}
 
-	metadata, err := c.repo.Save(ctx, cmd)
+	metadata, err := c.metadataRepo.Save(ctx, cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +43,13 @@ func (c *CraeteMetadataCommand) CreateMetadata(ctx context.Context, cmd *metadat
 		RecordType: metadataModel.RecordTypeMovie,
 		EventType:  metadataModel.MetadataEventTypeSubmitted,
 	}
-	_ = c.producer.PublishMetadataSubmittedEvent(event)
+	err = c.producer.PublishMetadataSubmittedEvent(event)
+	if err != nil {
+		err = c.metadataEventRepo.Save(ctx, &event)
+		if err != nil {
+			log.Println(err)
+		}
+	}
 
 	return metadata, nil
 }

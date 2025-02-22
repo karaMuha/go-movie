@@ -8,15 +8,15 @@ import (
 )
 
 type SubmitMetadataCommand struct {
-	metadataRepo driven.IMetadatarepository
+	metadataRepo driven.IAggregatedRatingRepository
 }
 
-func NewSubmitMetadataCommand(metadataRepo driven.IMetadatarepository) SubmitMetadataCommand {
+func NewSubmitMetadataCommand(metadataRepo driven.IAggregatedRatingRepository) SubmitMetadataCommand {
 	return SubmitMetadataCommand{
 		metadataRepo: metadataRepo,
 	}
 }
 
-func (c *SubmitMetadataCommand) SubmitMetadata(cmd *ratingmodel.AggregatedRating) {
-	_ = c.metadataRepo.Save(context.Background(), cmd)
+func (c *SubmitMetadataCommand) SubmitMetadata(cmd *ratingmodel.AggregatedRating) error {
+	return c.metadataRepo.Save(context.Background(), cmd)
 }

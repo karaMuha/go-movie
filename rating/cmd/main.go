@@ -14,9 +14,10 @@ import (
 	"github.com/karaMuha/go-movie/rating/config"
 	"github.com/karaMuha/go-movie/rating/internal/core"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
+	"github.com/karaMuha/go-movie/rating/internal/cronjob"
 	grpchandler "github.com/karaMuha/go-movie/rating/internal/endpoint/grpc"
 	"github.com/karaMuha/go-movie/rating/internal/queue/consumer"
-	"github.com/karaMuha/go-movie/rating/internal/repository/memory"
+	postgres_repo "github.com/karaMuha/go-movie/rating/internal/repository/postgres"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
@@ -56,21 +57,23 @@ func main() {
 		log.Fatalln(err)
 	}
 	defer db.Close()
-	//ratingPostgresRepo := postgres_repo.NewRatingRepository(db)
 
-	ratingRepo := memory.NewRatingsRepository()
-	metadataRepo := memory.NewMetadataRepository()
-	app := core.New(&ratingRepo, &metadataRepo)
+	ratingRepo := postgres_repo.NewRatingRepository(db)
+	aggregatedRatingRepo := postgres_repo.NewAggregatedMetadataRepository(db)
+	app := core.New(&ratingRepo, &aggregatedRatingRepo)
 
 	ratingConsumer := consumer.NewRatingEventConsumer(&app, config.KafkaAddress, "ratings", "rating")
 	defer ratingConsumer.RatingReader.Close()
 	go ratingConsumer.StartReadingRatingEvents()
 
-	metadataConsumer := consumer.NewMetadataEventConsumer(&app, config.KafkaAddress, "metadata", "metadata")
+	metadataEventRepository := postgres_repo.NewMetadataEventRepository(db)
+	metadataConsumer := consumer.NewMetadataEventConsumer(&app, config.KafkaAddress, "metadata", "metadata", &metadataEventRepository)
 	defer metadataConsumer.Reader.Close()
 	go metadataConsumer.StartReadingMetadataEvents()
 
-	// startRest(&app, port)
+	cronjob := cronjob.NewCronjob(&metadataEventRepository, app)
+	go cronjob.RunMetadata()
+
 	startGrpc(&app, config.PortExposed)
 
 }
@@ -90,28 +93,3 @@ func startGrpc(app driving.IApplication, port string) {
 		log.Fatalln(err)
 	}
 }
-
-/* func setupRestEndpoints(mux *http.ServeMux, ratingHandlerV1 rest.RatingHandlerV1) {
-	ratingV1 := http.NewServeMux()
-	ratingV1.HandleFunc("GET /get-rating", ratingHandlerV1.HandleGetRating)
-	ratingV1.HandleFunc("POST /submit-rating", ratingHandlerV1.HandleSubmitRating)
-
-	mux.Handle("/v1/", http.StripPrefix("/v1", ratingV1))
-}
-
-func startRest(app driving.IApplication, port int) {
-	ratingHandlerV1 := rest.NewRatingHandlerV1(app)
-
-	mux := http.NewServeMux()
-	setupRestEndpoints(mux, ratingHandlerV1)
-
-	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: mux,
-	}
-
-	err := server.ListenAndServe()
-	if err != nil {
-		panic(err)
-	}
-} */
