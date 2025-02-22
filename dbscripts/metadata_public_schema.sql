@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS metadata(
   director TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS metadata_created_event(
+CREATE TABLE IF NOT EXISTS metadata_created_events(
   id UUID KEY NOT NULL,
   record_type TEXT NOT NULL,
   event_type TEXT NOT NULL

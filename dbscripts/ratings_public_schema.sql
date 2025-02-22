@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS aggregated_ratings(
   PRIMARY KEY (id, record_type)
 );
 
-CREATE TABLE IF NOT EXISTS metadata_created_event(
+CREATE TABLE IF NOT EXISTS metadata_created_events(
   id UUID NOT NULL,
   record_type TEXT NOT NULL,
   event_type TEXT NOT NULL,
