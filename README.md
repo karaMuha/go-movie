@@ -6,9 +6,10 @@ The purpose of this project is to learn more about microservices with the help o
 The original code can be found [here](https://github.com/PacktPublishing/Microservices-with-Go)
 
 ## Overview
-The Architecture consists of three services, two databases, a message bus and a service registry. The three services are the movie serivce acting as an API gateway and is responsible to handle incoming requests. The metadata service holds general data about movies and saves it in a Postgres database (currently in-memory). The ratings service manages ratings for movies and saves its data in a postgres database as well (also currently in-memory). The backbone for asynchronous communication is a kafka instance.
+The Architecture consists of three services, two databases, a message bus and a service registry. The three services are the movie serivce acting as an API gateway and is responsible to handle incoming requests. The metadata service holds general data about movies and saves it in a Postgres database. The ratings service manages ratings for movies and saves its data in a postgres database as well. The backbone for asynchronous communication is a kafka instance.
+Messages that were failed to publish and consumed messages that were failed to be processed are saved in the database of the respective service. A cronjob loops thorugh the data periodically and tries to process them.
 
-![Diagram of the architecture](/diagram.drawio.png)
+![Diagram of the architecture](/microservice.drawio.png)
 
 ## Differences to the books code
 Even though I followed the authors example project there are some major differences between the authors code and mine:
@@ -24,10 +25,10 @@ On the one hand he author discusses and explains some of the key concepts regard
 However I can still recommend this literature to those with no prior experience with microservices.
 
 ## Todos
-- dockerize the serivces
+- refactor error handling
 - implement graceful shutdown in each service and make sure to inform kafka in case of service shutdown to prevent message loss
-- implement a solution for observability and save logs and telemetric data in a seperate database
-- add Prometheus/Grafana to visualize telemetric data
+- implement a solution for observability and tracing
+- visualize telemetric data
 - send feedback to author
 
 ## What next?
