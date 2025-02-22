@@ -22,7 +22,7 @@ var _ driven.IMetadataEventRepository = (*MetadataEventRepository)(nil)
 
 func (r *MetadataEventRepository) Save(ctx context.Context, event *metadataModel.MetadataEvent) error {
 	query := `
-		INSERT INTO metadata_creted_events(id, record_ype, event_type)
+		INSERT INTO metadata_created_events(id, record_ype, event_type)
 		VALUES($1, $2, $3);
 	`
 	_, err := r.db.ExecContext(ctx, query, event.ID, event.RecordType, event.EventType)

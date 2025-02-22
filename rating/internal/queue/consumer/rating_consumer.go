@@ -28,11 +28,12 @@ func NewRatingEventConsumer(app driving.IApplication, address string, topic stri
 
 func (c *RatingEventConsumer) StartReadingRatingEvents() {
 	for {
-		message, err := c.RatingReader.ReadMessage(context.Background())
+		message, err := c.RatingReader.FetchMessage(context.Background())
 		if err != nil {
 			log.Printf("error reading message from queue: %v\n", err)
 			continue
 		}
+		c.RatingReader.CommitMessages(context.Background(), message)
 
 		var event ratingmodel.RatingEvent
 		err = json.Unmarshal(message.Value, &event)

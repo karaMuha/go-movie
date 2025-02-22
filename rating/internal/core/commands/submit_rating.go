@@ -26,6 +26,11 @@ func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, recordID model.R
 		return err
 	}
 
+	err = c.ratingsRepo.Save(ctx, recordID, recordType, rating)
+	if err != nil {
+		return err
+	}
+
 	aggregatedRating, err := c.aggregatedRatingRepo.Load(ctx, string(recordID), string(recordType))
 	if err != nil {
 		// save in table for cronjob
@@ -37,10 +42,10 @@ func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, recordID model.R
 	newRating := ratingSum / (float64(aggregatedRating.AmountRatings) + 1.0)
 	aggregatedRating.AmountRatings += 1
 	aggregatedRating.Rating = newRating
-	err = c.aggregatedRatingRepo.Save(ctx, aggregatedRating)
+	err = c.aggregatedRatingRepo.Update(ctx, aggregatedRating)
 	if err != nil {
 		// save in table for cronjob
 	}
 
-	return c.ratingsRepo.Save(ctx, recordID, recordType, rating)
+	return nil
 }

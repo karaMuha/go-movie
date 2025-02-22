@@ -36,3 +36,7 @@ func (r *AggregatedRatingRepository) Load(ctx context.Context, recordID string, 
 	}
 	return aggregatedRating, nil
 }
+
+func (r *AggregatedRatingRepository) Update(ctx context.Context, aggregatedRating *ratingmodel.AggregatedRating) error {
+	return nil
+}

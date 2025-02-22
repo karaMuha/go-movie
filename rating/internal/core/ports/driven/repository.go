@@ -15,6 +15,7 @@ type IRatingRepository interface {
 type IAggregatedRatingRepository interface {
 	Save(ctx context.Context, metadata *ratingmodel.AggregatedRating) error
 	Load(ctx context.Context, recordID string, recordType string) (*ratingmodel.AggregatedRating, error)
+	Update(ctx context.Context, aggregatedRating *ratingmodel.AggregatedRating) error
 }
 
 type IMetadataEventRepository interface {

@@ -48,3 +48,13 @@ func (r *AggregatedRatingRepository) Save(ctx context.Context, metadata *ratingm
 	_, err := r.db.ExecContext(ctx, query, metadata.ID, metadata.RecordType, metadata.Rating, metadata.AmountRatings)
 	return err
 }
+
+func (r *AggregatedRatingRepository) Update(ctx context.Context, aggregatedRating *ratingmodel.AggregatedRating) error {
+	query := `
+		UPDATE aggregated_ratings
+		SET rating = $1, amount_ratings = $2
+		WHERE id = $3 AND record_type = $4;
+	`
+	_, err := r.db.ExecContext(ctx, query, aggregatedRating.Rating, aggregatedRating.AmountRatings, aggregatedRating.ID, aggregatedRating.RecordType)
+	return err
+}
