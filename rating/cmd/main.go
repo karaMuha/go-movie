@@ -14,6 +14,7 @@ import (
 	"github.com/karaMuha/go-movie/rating/config"
 	"github.com/karaMuha/go-movie/rating/internal/core"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
+	"github.com/karaMuha/go-movie/rating/internal/cronjob"
 	grpchandler "github.com/karaMuha/go-movie/rating/internal/endpoint/grpc"
 	"github.com/karaMuha/go-movie/rating/internal/queue/consumer"
 	postgres_repo "github.com/karaMuha/go-movie/rating/internal/repository/postgres"
@@ -69,6 +70,9 @@ func main() {
 	metadataConsumer := consumer.NewMetadataEventConsumer(&app, config.KafkaAddress, "metadata", "metadata", &metadataEventRepository)
 	defer metadataConsumer.Reader.Close()
 	go metadataConsumer.StartReadingMetadataEvents()
+
+	cronjob := cronjob.NewCronjob(&metadataEventRepository, app)
+	go cronjob.RunMetadata()
 
 	startGrpc(&app, config.PortExposed)
 
