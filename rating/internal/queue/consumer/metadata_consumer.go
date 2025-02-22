@@ -22,7 +22,7 @@ func NewMetadataEventConsumer(
 	app driving.IApplication,
 	address string,
 	topic string,
-	gourpID string,
+	groupID string,
 	metadataEventRepository driven.IMetadataEventRepository,
 ) *MetadataEventConsumer {
 	reader := kafka.NewReader(kafka.ReaderConfig{
@@ -38,11 +38,12 @@ func NewMetadataEventConsumer(
 
 func (c *MetadataEventConsumer) StartReadingMetadataEvents() {
 	for {
-		message, err := c.Reader.ReadMessage(context.Background())
+		message, err := c.Reader.FetchMessage(context.Background())
 		if err != nil {
 			log.Printf("error reading message from queue: %v\n", err)
 			continue
 		}
+		c.Reader.CommitMessages(context.Background(), message)
 
 		var event metadataModel.MetadataEvent
 		err = json.Unmarshal(message.Value, &event)
