@@ -16,7 +16,7 @@ Even though I followed the authors example project there are some major differen
 - the books example uses the classic N-tier application design while I implemented the domain-centric architecture as described in my [go-social repository](https://github.com/karaMuha/go-social)
 - I used testcontainers to test against real databases while the author uses mocks and in-memory solutions
 - I integrated Kafka into the systems architecture while the author provides an example that is just in parts integrated to the actual project
-- the books example saves each individual rating and calculates the average rating for a movie on each get request. I followed the CQRS principle by implementing a read and a write table. On each rating submission the rating is saved in the write table and the calculated average rating for that movie is updated in the read movie. This leads to a performance increase because the average rating does not have to be calculated on each get request.
+- the books example saves each individual rating and calculates the average rating for a movie on each get request. I followed the CQRS principle by implementing a read and a write table. On each rating submission the rating is saved in the write table and the calculated average rating for that movie is updated in the read table. This leads to a performance increase because the average rating does not have to be calculated on each get request.
 
 ## How to run the app
 
