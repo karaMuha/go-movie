@@ -3,7 +3,9 @@ package postgres_repo
 import (
 	"context"
 	"database/sql"
+	"net/http"
 
+	"github.com/karaMuha/go-movie/pkg/dtos"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driven"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
@@ -20,7 +22,7 @@ func NewRatingRepository(db *sql.DB) RatingRepository {
 	}
 }
 
-func (r *RatingRepository) Load(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) ([]*ratingmodel.Rating, error) {
+func (r *RatingRepository) Load(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) ([]*ratingmodel.Rating, *dtos.RespErr) {
 	query := `
 		SELECT *
 		FROM ratings
@@ -30,7 +32,10 @@ func (r *RatingRepository) Load(ctx context.Context, recordID ratingmodel.Record
 
 	rows, err := r.db.QueryContext(ctx, query, string(recordID), string(recordType))
 	if err != nil {
-		return nil, err
+		return nil, &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 
 	var ratingList []*ratingmodel.Rating
@@ -43,7 +48,10 @@ func (r *RatingRepository) Load(ctx context.Context, recordID ratingmodel.Record
 			&rating.Value,
 		)
 		if err != nil {
-			return nil, err
+			return nil, &dtos.RespErr{
+				StatusCode:    http.StatusInternalServerError,
+				StatusMessage: err.Error(),
+			}
 		}
 
 		ratingList = append(ratingList, &rating)
@@ -52,12 +60,18 @@ func (r *RatingRepository) Load(ctx context.Context, recordID ratingmodel.Record
 	return ratingList, nil
 }
 
-func (r *RatingRepository) Save(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) error {
+func (r *RatingRepository) Save(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) *dtos.RespErr {
 	query := `
 		INSERT INTO ratings (record_id, record_type, user_id, value)
 		VALUES ($1, $2, $3, $4)
 	`
 
 	_, err := r.db.ExecContext(ctx, query, rating.RecordID, rating.RecordType, rating.UserID, rating.Value)
-	return err
+	if err != nil {
+		return &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
+	}
+	return nil
 }

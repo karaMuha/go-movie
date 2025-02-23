@@ -2,8 +2,9 @@ package memory
 
 import (
 	"context"
+	"net/http"
 
-	"github.com/karaMuha/go-movie/rating/internal/core/domain"
+	"github.com/karaMuha/go-movie/pkg/dtos"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driven"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
@@ -20,7 +21,7 @@ func NewAggregatedRatingRepository() AggregatedRatingRepository {
 
 var _ driven.IAggregatedRatingRepository = (*AggregatedRatingRepository)(nil)
 
-func (r *AggregatedRatingRepository) Save(ctx context.Context, metadata *ratingmodel.AggregatedRating) error {
+func (r *AggregatedRatingRepository) Save(ctx context.Context, metadata *ratingmodel.AggregatedRating) *dtos.RespErr {
 	if _, ok := r.data[ratingmodel.RecordType(metadata.RecordType)]; !ok {
 		r.data[ratingmodel.RecordType(metadata.RecordType)] = map[ratingmodel.RecordID]*ratingmodel.AggregatedRating{}
 	}
@@ -29,14 +30,17 @@ func (r *AggregatedRatingRepository) Save(ctx context.Context, metadata *ratingm
 	return nil
 }
 
-func (r *AggregatedRatingRepository) Load(ctx context.Context, recordID string, recrodType string) (*ratingmodel.AggregatedRating, error) {
+func (r *AggregatedRatingRepository) Load(ctx context.Context, recordID string, recrodType string) (*ratingmodel.AggregatedRating, *dtos.RespErr) {
 	aggregatedRating, ok := r.data[ratingmodel.RecordType(recrodType)][ratingmodel.RecordID(recordID)]
 	if !ok {
-		return nil, domain.ErrNotFound
+		return nil, &dtos.RespErr{
+			StatusCode:    http.StatusNotFound,
+			StatusMessage: "Not Found",
+		}
 	}
 	return aggregatedRating, nil
 }
 
-func (r *AggregatedRatingRepository) Update(ctx context.Context, aggregatedRating *ratingmodel.AggregatedRating) error {
+func (r *AggregatedRatingRepository) Update(ctx context.Context, aggregatedRating *ratingmodel.AggregatedRating) *dtos.RespErr {
 	return nil
 }

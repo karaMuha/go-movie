@@ -3,12 +3,10 @@ package rest
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/karaMuha/go-movie/rating/internal/core/domain"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
 	model "github.com/karaMuha/go-movie/rating/pkg"
 )
@@ -39,19 +37,13 @@ func (h *RatingHandlerV1) HandleGetRating(w http.ResponseWriter, r *http.Request
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	aggregatedRating, _, err := h.app.GetAggregatedRating(ctx, recordID, recordType)
-	if errors.Is(err, domain.ErrNotFound) {
-		http.Error(w, err.Error(), http.StatusNotFound)
+	aggregatedRating, _, respErr := h.app.GetAggregatedRating(ctx, recordID, recordType)
+	if respErr != nil {
+		http.Error(w, respErr.StatusMessage, respErr.StatusCode)
 		return
 	}
 
-	if err != nil {
-		log.Printf("GetAggregatedRating error: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	err = json.NewEncoder(w).Encode(aggregatedRating)
+	err := json.NewEncoder(w).Encode(aggregatedRating)
 	if err != nil {
 		log.Printf("GetAggregatedRating error: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -70,10 +62,10 @@ func (h *RatingHandlerV1) HandleSubmitRating(w http.ResponseWriter, r *http.Requ
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	err = h.app.SubmitRating(ctx, model.RecordID(rating.RecordID), model.RecordType(rating.RecordType), &rating)
-	if err != nil {
+	respErr := h.app.SubmitRating(ctx, model.RecordID(rating.RecordID), model.RecordType(rating.RecordType), &rating)
+	if respErr != nil {
 		log.Printf("SaveRating error: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, respErr.StatusMessage, respErr.StatusCode)
 		return
 	}
 }

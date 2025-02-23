@@ -2,12 +2,13 @@ package memory
 
 import (
 	"context"
+	"net/http"
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/karaMuha/go-movie/metadata/internal/core/domain"
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driven"
 	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
+	"github.com/karaMuha/go-movie/pkg/dtos"
 )
 
 type MetadataRepository struct {
@@ -23,18 +24,21 @@ func New() *MetadataRepository {
 	}
 }
 
-func (r *MetadataRepository) Load(ctx context.Context, id string) (*metadataModel.Metadata, error) {
+func (r *MetadataRepository) Load(ctx context.Context, id string) (*metadataModel.Metadata, *dtos.RespErr) {
 	r.RLock()
 	defer r.RUnlock()
 	m, ok := r.data[id]
 	if !ok {
-		return nil, domain.ErrNotFound
+		return nil, &dtos.RespErr{
+			StatusCode:    http.StatusNotFound,
+			StatusMessage: "Not Found",
+		}
 	}
 
 	return m, nil
 }
 
-func (r *MetadataRepository) Save(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, error) {
+func (r *MetadataRepository) Save(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, *dtos.RespErr) {
 	id := uuid.NewString()
 	metadata.ID = id
 	r.Lock()
