@@ -2,8 +2,10 @@ package commands
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
+	"github.com/karaMuha/go-movie/pkg/dtos"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
 
@@ -19,7 +21,7 @@ func NewSubmitRatingCommand(ratingGateway driven.IRatingGateway, messageProducer
 	}
 }
 
-func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, cmd *ratingmodel.Rating) error {
+func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, cmd *ratingmodel.Rating) *dtos.RespErr {
 	/* err := c.ratingGateway.SubmitRating(ctx, ratingmodel.RecordID(cmd.RecordID), ratingmodel.RecordType(cmd.RecordType), cmd)
 	if err != nil {
 		return err
@@ -33,7 +35,13 @@ func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, cmd *ratingmodel
 		EventType:  ratingmodel.RatingEventTypeSubmit,
 	}
 
-	c.messageProducer.PublishRatingSubmittedEvent(*event)
+	err := c.messageProducer.PublishRatingSubmittedEvent(*event)
+	if err != nil {
+		return &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
+	}
 
 	return nil
 }

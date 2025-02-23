@@ -5,6 +5,7 @@ import (
 
 	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
+	"github.com/karaMuha/go-movie/pkg/dtos"
 )
 
 type SubmitMetadataCommand struct {
@@ -17,6 +18,6 @@ func NewSubmitMetadataCommand(metadataGateway driven.IMetadataGateway) SubmitMet
 	}
 }
 
-func (c *SubmitMetadataCommand) SubmitMetadata(ctx context.Context, cmd *metadataModel.Metadata) (*metadataModel.Metadata, error) {
+func (c *SubmitMetadataCommand) SubmitMetadata(ctx context.Context, cmd *metadataModel.Metadata) (*metadataModel.Metadata, *dtos.RespErr) {
 	return c.metadataGateway.SubmitMetadata(ctx, cmd)
 }

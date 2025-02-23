@@ -53,15 +53,15 @@ func (c *MetadataEventConsumer) StartReadingMetadataEvents() {
 		}
 
 		log.Printf("Read message: %v\n", event)
-		err = c.app.SubmitMetadata(&ratingmodel.AggregatedRating{
+		respErr := c.app.SubmitMetadata(&ratingmodel.AggregatedRating{
 			ID:            event.ID,
 			RecordType:    string(event.RecordType),
 			Rating:        0.0,
 			AmountRatings: 0,
 		})
-		if err != nil {
-			err = c.metadataEventRepository.Save(context.Background(), event)
-			if err != nil {
+		if respErr != nil {
+			respErr = c.metadataEventRepository.Save(context.Background(), event)
+			if respErr != nil {
 				log.Printf("event with ID %s failed to be processed: %v\n", event.ID, err)
 			}
 		}

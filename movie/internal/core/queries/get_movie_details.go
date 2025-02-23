@@ -2,11 +2,10 @@ package queries
 
 import (
 	"context"
-	"strings"
 
-	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
 	"github.com/karaMuha/go-movie/movie/movieModel"
+	"github.com/karaMuha/go-movie/pkg/dtos"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
 
@@ -22,21 +21,15 @@ func NewGetMovieDetailsQuery(metadataGateway driven.IMetadataGateway, ratingGate
 	}
 }
 
-func (q *GetMovieDetailsQuery) GetMovieDetails(ctx context.Context, movieID string) (*movieModel.MovieDetails, error) {
-	metadata, err := q.metadataGateway.GetMetadata(ctx, movieID)
-	if err != nil {
-		if strings.Contains(err.Error(), "NotFound") {
-			return nil, domain.ErrNotFound
-		}
-		return nil, err
+func (q *GetMovieDetailsQuery) GetMovieDetails(ctx context.Context, movieID string) (*movieModel.MovieDetails, *dtos.RespErr) {
+	metadata, respErr := q.metadataGateway.GetMetadata(ctx, movieID)
+	if respErr != nil {
+		return nil, respErr
 	}
 
-	rating, amountRatings, err := q.ratingGateway.GetAggregatedRating(ctx, ratingmodel.RecordID(movieID), ratingmodel.RecordTypeMovie)
-	if err != nil {
-		if strings.Contains(err.Error(), "NotFound") {
-			return nil, domain.ErrNotFound
-		}
-		return nil, err
+	rating, amountRatings, respErr := q.ratingGateway.GetAggregatedRating(ctx, ratingmodel.RecordID(movieID), ratingmodel.RecordTypeMovie)
+	if respErr != nil {
+		return nil, respErr
 	}
 
 	movieDetails := movieModel.MovieDetails{

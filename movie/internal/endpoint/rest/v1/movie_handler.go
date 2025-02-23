@@ -3,13 +3,11 @@ package rest
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 	"time"
 
 	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
-	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driving"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
@@ -26,20 +24,15 @@ func NewMovieHandlerV1(app driving.IApplication) MovieHandlerV1 {
 
 func (h *MovieHandlerV1) HandleGetMovieDetails(w http.ResponseWriter, r *http.Request) {
 	movieID := r.URL.Query().Get("id")
-	movieDetails, err := h.app.GetMovieDetails(r.Context(), movieID)
+	movieDetails, respErr := h.app.GetMovieDetails(r.Context(), movieID)
 
-	if err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-		log.Printf("GetMovieDetails error: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if respErr != nil {
+		http.Error(w, respErr.StatusMessage, respErr.StatusCode)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(movieDetails)
+	err := json.NewEncoder(w).Encode(movieDetails)
 	if err != nil {
 		log.Printf("Response encode error: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -58,25 +51,19 @@ func (h *MovieHandlerV1) HandleSubmitRating(w http.ResponseWriter, r *http.Reque
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	err = h.app.SubmitRating(ctx, &rating)
-	if err != nil {
-		log.Printf("SaveRating error: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	respErr := h.app.SubmitRating(ctx, &rating)
+	if respErr != nil {
+		http.Error(w, respErr.StatusMessage, respErr.StatusCode)
 		return
 	}
 }
 
 func (h *MovieHandlerV1) HandleGetMetadata(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
-	metadata, err := h.app.GetMetadata(r.Context(), id)
+	metadata, respErr := h.app.GetMetadata(r.Context(), id)
 
-	if errors.Is(err, domain.ErrNotFound) {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+	if respErr != nil {
+		http.Error(w, respErr.StatusMessage, respErr.StatusCode)
 		return
 	}
 
@@ -99,9 +86,9 @@ func (h *MovieHandlerV1) HandleSubmitMetadata(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	resp, err := h.app.SubmitMetadata(r.Context(), &metadata)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	resp, respErr := h.app.SubmitMetadata(r.Context(), &metadata)
+	if respErr != nil {
+		http.Error(w, respErr.StatusMessage, respErr.StatusCode)
 		return
 	}
 

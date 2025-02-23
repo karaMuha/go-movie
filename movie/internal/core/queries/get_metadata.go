@@ -5,6 +5,7 @@ import (
 
 	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
+	"github.com/karaMuha/go-movie/pkg/dtos"
 )
 
 type GetMetadataQuery struct {
@@ -17,6 +18,6 @@ func NewGetMetadataQuery(metadataGateway driven.IMetadataGateway) GetMetadataQue
 	}
 }
 
-func (q *GetMetadataQuery) GetMetadata(ctx context.Context, ID string) (*metadataModel.Metadata, error) {
+func (q *GetMetadataQuery) GetMetadata(ctx context.Context, ID string) (*metadataModel.Metadata, *dtos.RespErr) {
 	return q.metadataGateway.GetMetadata(ctx, ID)
 }

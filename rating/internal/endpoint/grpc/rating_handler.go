@@ -2,10 +2,9 @@ package grpchandler
 
 import (
 	"context"
-	"errors"
+	"net/http"
 
 	"github.com/karaMuha/go-movie/pb"
-	"github.com/karaMuha/go-movie/rating/internal/core/domain"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 	"google.golang.org/grpc/codes"
@@ -28,19 +27,20 @@ func (h *RatingHandler) GetAggregatedRating(ctx context.Context, req *pb.GetAggr
 		return nil, status.Errorf(codes.InvalidArgument, "nil req or empty record id or empty record type")
 	}
 
-	rating, amountRatings, err := h.app.GetAggregatedRating(ctx, ratingmodel.RecordID(req.RecordId), ratingmodel.RecordType(req.RecordType))
+	rating, amountRatings, respErr := h.app.GetAggregatedRating(ctx, ratingmodel.RecordID(req.RecordId), ratingmodel.RecordType(req.RecordType))
 
-	if errors.Is(err, domain.ErrNotFound) {
-		return nil, status.Errorf(codes.NotFound, err.Error())
-	}
-
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, err.Error())
+	if respErr != nil {
+		return &pb.GetAggregatedRatingResponse{
+			ResponseStatus: ratingmodel.RespErrToProto(respErr),
+		}, nil
 	}
 
 	return &pb.GetAggregatedRatingResponse{
 		RatingValue:  rating,
 		AmountRating: int32(amountRatings),
+		ResponseStatus: &pb.ResponseStatus{
+			StatusCode: http.StatusOK,
+		},
 	}, nil
 }
 
@@ -55,8 +55,17 @@ func (h *RatingHandler) SubmitRating(ctx context.Context, req *pb.SubmitRatingRe
 		UserID:     req.UserId,
 		Value:      int(req.RatingValue),
 	}
-	err := h.app.SubmitRating(ctx, ratingmodel.RecordID(req.RecordId), ratingmodel.RecordTypeMovie, rating)
+	respErr := h.app.SubmitRating(ctx, ratingmodel.RecordID(req.RecordId), ratingmodel.RecordTypeMovie, rating)
+	if respErr != nil {
+		return &pb.SubmitRatingResponse{
+			ResponseStatus: ratingmodel.RespErrToProto(respErr),
+		}, nil
+	}
 
-	return &pb.SubmitRatingResponse{}, err
+	return &pb.SubmitRatingResponse{
+		ResponseStatus: &pb.ResponseStatus{
+			StatusCode: http.StatusCreated,
+		},
+	}, nil
 
 }

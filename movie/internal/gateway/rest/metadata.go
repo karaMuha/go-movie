@@ -8,9 +8,9 @@ import (
 	"net/http"
 
 	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
-	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
 	"github.com/karaMuha/go-movie/pkg/discovery"
+	"github.com/karaMuha/go-movie/pkg/dtos"
 )
 
 type MetadataGateway struct {
@@ -25,16 +25,22 @@ func NewMetadataGateway(registry discovery.Registry) MetadataGateway {
 	}
 }
 
-func (g *MetadataGateway) GetMetadata(ctx context.Context, movieID string) (*metadataModel.Metadata, error) {
+func (g *MetadataGateway) GetMetadata(ctx context.Context, movieID string) (*metadataModel.Metadata, *dtos.RespErr) {
 	addresses, err := g.registry.ServiceAddresses(ctx, "metadata")
 	if err != nil {
-		return nil, err
+		return nil, &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 
 	url := fmt.Sprintf("http://%s/v1/get-metadata", addresses[rand.Intn(len(addresses))])
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return nil, err
+		return nil, &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 
 	req = req.WithContext(ctx)
@@ -44,22 +50,30 @@ func (g *MetadataGateway) GetMetadata(ctx context.Context, movieID string) (*met
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 
 	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusNotFound {
-		return nil, domain.ErrNotFound
-	} else if resp.StatusCode/100 != 2 {
-		return nil, fmt.Errorf("non-2xx response: %v", resp)
+	if resp.StatusCode > 299 {
+		return nil, &dtos.RespErr{
+			StatusCode:    resp.StatusCode,
+			StatusMessage: resp.Status,
+		}
 	}
+
 	var v *metadataModel.Metadata
 	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
-		return nil, err
+		return nil, &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 	return v, nil
 }
 
-func (g *MetadataGateway) SubmitMetadata(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, error) {
+func (g *MetadataGateway) SubmitMetadata(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, *dtos.RespErr) {
 	return nil, nil
 }

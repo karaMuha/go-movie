@@ -3,10 +3,12 @@ package commands
 import (
 	"context"
 	"log"
+	"net/http"
 
 	"github.com/karaMuha/go-movie/metadata/internal/core/domain"
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driven"
 	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
+	"github.com/karaMuha/go-movie/pkg/dtos"
 )
 
 type CraeteMetadataCommand struct {
@@ -27,15 +29,18 @@ func NewCreateMetadataCommand(
 	}
 }
 
-func (c *CraeteMetadataCommand) CreateMetadata(ctx context.Context, cmd *metadataModel.Metadata) (*metadataModel.Metadata, error) {
+func (c *CraeteMetadataCommand) CreateMetadata(ctx context.Context, cmd *metadataModel.Metadata) (*metadataModel.Metadata, *dtos.RespErr) {
 	err := domain.CreateMetadata(cmd.Title, cmd.Director)
 	if err != nil {
-		return nil, err
+		return nil, &dtos.RespErr{
+			StatusCode:    http.StatusBadRequest,
+			StatusMessage: err.Error(),
+		}
 	}
 
-	metadata, err := c.metadataRepo.Save(ctx, cmd)
-	if err != nil {
-		return nil, err
+	metadata, respErr := c.metadataRepo.Save(ctx, cmd)
+	if respErr != nil {
+		return nil, respErr
 	}
 
 	event := metadataModel.MetadataEvent{
@@ -45,9 +50,9 @@ func (c *CraeteMetadataCommand) CreateMetadata(ctx context.Context, cmd *metadat
 	}
 	err = c.producer.PublishMetadataSubmittedEvent(event)
 	if err != nil {
-		err = c.metadataEventRepo.Save(ctx, &event)
-		if err != nil {
-			log.Println(err)
+		respErr = c.metadataEventRepo.Save(ctx, &event)
+		if respErr != nil {
+			log.Println(respErr)
 		}
 	}
 

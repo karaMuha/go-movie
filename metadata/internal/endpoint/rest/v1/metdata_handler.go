@@ -3,12 +3,10 @@ package rest
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/karaMuha/go-movie/metadata/internal/core/domain"
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driving"
 )
 
@@ -31,20 +29,14 @@ func (h MetadataHandlerV1) GetMetadata(w http.ResponseWriter, r *http.Request) {
 
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
-	metadata, err := h.app.GetMetadata(ctx, id)
+	metadata, respErr := h.app.GetMetadata(ctx, id)
 
-	if errors.Is(err, domain.ErrNotFound) {
-		http.Error(w, err.Error(), http.StatusNotFound)
+	if respErr != nil {
+		http.Error(w, respErr.StatusMessage, respErr.StatusCode)
 		return
 	}
 
-	if err != nil {
-		log.Printf("GetMetadata error: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	err = json.NewEncoder(w).Encode(metadata)
+	err := json.NewEncoder(w).Encode(metadata)
 	if err != nil {
 		log.Printf("GetMetadata error: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
