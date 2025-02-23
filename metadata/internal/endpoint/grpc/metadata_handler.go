@@ -2,9 +2,8 @@ package grpchandler
 
 import (
 	"context"
-	"errors"
+	"net/http"
 
-	"github.com/karaMuha/go-movie/metadata/internal/core/domain"
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driving"
 	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 	"github.com/karaMuha/go-movie/pb"
@@ -28,18 +27,19 @@ func (h *MetadataHandler) GetMetadata(ctx context.Context, req *pb.GetMetadataRe
 		return nil, status.Errorf(codes.InvalidArgument, "nil req or empty movie id")
 	}
 
-	metadata, err := h.app.GetMetadata(ctx, req.MovieId)
+	metadata, respErr := h.app.GetMetadata(ctx, req.MovieId)
 
-	if errors.Is(err, domain.ErrNotFound) {
-		return nil, status.Errorf(codes.NotFound, err.Error())
-	}
-
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, err.Error())
+	if respErr != nil {
+		return &pb.GetMetadataResponse{
+			ResponseStatus: metadataModel.RespErrToProto(respErr),
+		}, nil
 	}
 
 	return &pb.GetMetadataResponse{
 		Metadata: metadataModel.MetadataToProto(metadata),
+		ResponseStatus: &pb.ResponseStatus{
+			StatusCode: http.StatusOK,
+		},
 	}, nil
 }
 
@@ -50,12 +50,17 @@ func (h *MetadataHandler) SubmitMetadata(ctx context.Context, req *pb.SubmitMeta
 		Director:    req.Metadata.Director,
 	}
 
-	metadata, err := h.app.CreateMetadata(ctx, &cmd)
-	if err != nil {
-		return nil, err
+	metadata, respErr := h.app.CreateMetadata(ctx, &cmd)
+	if respErr != nil {
+		return &pb.SubmitMetadataResponse{
+			ResponseStatus: metadataModel.RespErrToProto(respErr),
+		}, nil
 	}
 
 	return &pb.SubmitMetadataResponse{
 		Metadata: metadataModel.MetadataToProto(metadata),
+		ResponseStatus: &pb.ResponseStatus{
+			StatusCode: http.StatusCreated,
+		},
 	}, nil
 }

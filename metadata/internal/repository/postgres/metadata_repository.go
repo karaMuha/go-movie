@@ -3,10 +3,11 @@ package postgres_repo
 import (
 	"context"
 	"database/sql"
-	"errors"
+	"net/http"
 
 	"github.com/karaMuha/go-movie/metadata/internal/core/ports/driven"
 	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
+	"github.com/karaMuha/go-movie/pkg/dtos"
 )
 
 type MetadataRepository struct {
@@ -21,7 +22,7 @@ func NewMetadataRepository(db *sql.DB) MetadataRepository {
 	}
 }
 
-func (m *MetadataRepository) Load(ctx context.Context, id string) (*metadataModel.Metadata, error) {
+func (m *MetadataRepository) Load(ctx context.Context, id string) (*metadataModel.Metadata, *dtos.RespErr) {
 	query := `
 		SELECT *
 		FROM metadata
@@ -37,15 +38,21 @@ func (m *MetadataRepository) Load(ctx context.Context, id string) (*metadataMode
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.New("metadata not found")
+			return nil, &dtos.RespErr{
+				StatusCode:    http.StatusNotFound,
+				StatusMessage: "Not Found",
+			}
 		}
-		return nil, err
+		return nil, &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 
 	return &metadata, nil
 }
 
-func (m *MetadataRepository) Save(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, error) {
+func (m *MetadataRepository) Save(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, *dtos.RespErr) {
 	query := `
 		INSERT INTO metadata (title, description, director)
 		VALUES ($1, $2, $3)
@@ -55,7 +62,10 @@ func (m *MetadataRepository) Save(ctx context.Context, metadata *metadataModel.M
 
 	var id string
 	if err := row.Scan(&id); err != nil {
-		return nil, err
+		return nil, &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 
 	metadata.ID = id

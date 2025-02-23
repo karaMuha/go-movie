@@ -50,6 +50,6 @@ func (s *SubmitRatingTestSuite) TestSubmitRating() {
 		UserID:     "123",
 		Value:      5,
 	}
-	err := s.cmd.SubmitRating(s.ctx, "123", "movie", &rating)
-	require.NoError(s.T(), err)
+	respErr := s.cmd.SubmitRating(s.ctx, "123", "movie", &rating)
+	require.Nil(s.T(), respErr)
 }

@@ -8,9 +8,9 @@ import (
 	"math/rand"
 	"net/http"
 
-	"github.com/karaMuha/go-movie/movie/internal/core/domain"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driven"
 	"github.com/karaMuha/go-movie/pkg/discovery"
+	"github.com/karaMuha/go-movie/pkg/dtos"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
 
@@ -26,15 +26,21 @@ func NewRatginGateway(registry discovery.Registry) RatingGateway {
 	}
 }
 
-func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) (float64, int, error) {
+func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) (float64, int, *dtos.RespErr) {
 	addresses, err := g.registry.ServiceAddresses(ctx, "rating")
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 	url := fmt.Sprintf("http://%s/v1/get-rating", addresses[rand.Intn(len(addresses))])
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 
 	req = req.WithContext(ctx)
@@ -44,26 +50,36 @@ func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID rating
 	req.URL.RawQuery = values.Encode()
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 
 	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusNotFound {
-		return 0, 0, domain.ErrNotFound
-	} else if resp.StatusCode/100 != 2 {
-		return 0, 0, fmt.Errorf("non-2xx response: %v", resp)
+	if resp.StatusCode > 299 {
+		return 0.0, 0, &dtos.RespErr{
+			StatusCode:    resp.StatusCode,
+			StatusMessage: resp.Status,
+		}
 	}
 	var v float64
 	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
-		return 0, 0, err
+		return 0, 0, &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 	return v, 0, nil
 }
 
-func (g *RatingGateway) SubmitRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) error {
+func (g *RatingGateway) SubmitRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) *dtos.RespErr {
 	addresses, err := g.registry.ServiceAddresses(ctx, "rating")
 	if err != nil {
-		return err
+		return &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 	url := fmt.Sprintf("%s/v1/submit-rating", addresses[rand.Intn(len(addresses))])
 	body := ratingmodel.Rating{
@@ -74,20 +90,32 @@ func (g *RatingGateway) SubmitRating(ctx context.Context, recordID ratingmodel.R
 	}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
-		return err
+		return &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonBody))
 	if err != nil {
-		return err
+		return &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return &dtos.RespErr{
+			StatusCode:    http.StatusInternalServerError,
+			StatusMessage: err.Error(),
+		}
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode/100 != 2 {
-		return fmt.Errorf("non-2xx response: %v", resp)
+	if resp.StatusCode > 299 {
+		return &dtos.RespErr{
+			StatusCode:    resp.StatusCode,
+			StatusMessage: resp.Status,
+		}
 	}
 	return nil
 }

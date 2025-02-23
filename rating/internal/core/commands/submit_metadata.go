@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 
+	"github.com/karaMuha/go-movie/pkg/dtos"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driven"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
@@ -17,6 +18,6 @@ func NewSubmitMetadataCommand(metadataRepo driven.IAggregatedRatingRepository) S
 	}
 }
 
-func (c *SubmitMetadataCommand) SubmitMetadata(cmd *ratingmodel.AggregatedRating) error {
+func (c *SubmitMetadataCommand) SubmitMetadata(cmd *ratingmodel.AggregatedRating) *dtos.RespErr {
 	return c.aggregatedRatingRepo.Save(context.Background(), cmd)
 }
