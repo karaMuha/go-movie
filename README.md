@@ -27,7 +27,6 @@ On the one hand he author discusses and explains some of the key concepts regard
 However I can still recommend this literature to those with no prior experience with microservices.
 
 ## Todos
-- refactor error handling
 - implement graceful shutdown in each service and make sure to inform kafka in case of service shutdown to prevent message loss
 - implement a solution for observability and tracing
 - visualize telemetric data
