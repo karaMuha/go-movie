@@ -13,7 +13,7 @@ type Application struct {
 }
 
 type appCommands struct {
-	commands.CraeteMetadataCommand
+	commands.CreateMetadataCommand
 }
 
 type appQueries struct {
@@ -28,7 +28,7 @@ func New(metadataRepo driven.IMetadataRepository,
 ) Application {
 	return Application{
 		appCommands: appCommands{
-			CraeteMetadataCommand: commands.NewCreateMetadataCommand(metadataRepo, producer, metadataEventRepo),
+			CreateMetadataCommand: commands.NewCreateMetadataCommand(metadataRepo, producer, metadataEventRepo),
 		},
 		appQueries: appQueries{
 			GetMetadataQuery: queries.NewGetMetadataQuery(metadataRepo),

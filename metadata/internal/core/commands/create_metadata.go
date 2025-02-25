@@ -11,26 +11,26 @@ import (
 	"github.com/karaMuha/go-movie/pkg/dtos"
 )
 
-type CraeteMetadataCommand struct {
+type CreateMetadataCommand struct {
 	metadataRepo      driven.IMetadataRepository
 	metadataEventRepo driven.IMetadataEventRepository
 	producer          driven.IMessageProducer
 }
 
 func NewCreateMetadataCommand(
-	repo driven.IMetadataRepository,
+	metadataRepo driven.IMetadataRepository,
 	producer driven.IMessageProducer,
 	metadataEventRepo driven.IMetadataEventRepository,
-) CraeteMetadataCommand {
-	return CraeteMetadataCommand{
-		metadataRepo:      repo,
+) CreateMetadataCommand {
+	return CreateMetadataCommand{
+		metadataRepo:      metadataRepo,
 		metadataEventRepo: metadataEventRepo,
 		producer:          producer,
 	}
 }
 
-func (c *CraeteMetadataCommand) CreateMetadata(ctx context.Context, cmd *metadataModel.Metadata) (*metadataModel.Metadata, *dtos.RespErr) {
-	err := domain.CreateMetadata(cmd.Title, cmd.Director)
+func (c *CreateMetadataCommand) CreateMetadata(ctx context.Context, cmd *metadataModel.Metadata) (*metadataModel.Metadata, *dtos.RespErr) {
+	err := domain.CreateMetadata(cmd.Title, cmd.Director, cmd.RecordType)
 	if err != nil {
 		return nil, &dtos.RespErr{
 			StatusCode:    http.StatusBadRequest,
@@ -45,7 +45,7 @@ func (c *CraeteMetadataCommand) CreateMetadata(ctx context.Context, cmd *metadat
 
 	event := metadataModel.MetadataEvent{
 		ID:         metadata.ID,
-		RecordType: metadataModel.RecordTypeMovie,
+		RecordType: metadataModel.MetadataRecordType(cmd.RecordType),
 		EventType:  metadataModel.MetadataEventTypeSubmitted,
 	}
 	err = c.producer.PublishMetadataSubmittedEvent(event)

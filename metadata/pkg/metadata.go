@@ -6,6 +6,7 @@ type Metadata struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Director    string `json:"director"`
+	RecordType  string `json:"record_type"`
 }
 
 type MetadataRecordType string
