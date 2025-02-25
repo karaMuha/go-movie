@@ -24,7 +24,7 @@ func (c *Cronjob) Run() {
 	for {
 		events, respErr := c.metadataEventRepo.Load(context.Background())
 		if respErr == nil {
-			for _, event := range *events {
+			for _, event := range events {
 				err := c.producer.PublishMetadataSubmittedEvent(event)
 				if respErr != nil {
 					log.Println(err)

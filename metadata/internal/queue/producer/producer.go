@@ -33,7 +33,7 @@ func (p *MessageProducer) PublishMetadataSubmittedEvent(event metadataModel.Meta
 	encodedEvent, err := json.Marshal(event)
 	if err != nil {
 		log.Printf("Error encoding event before publishing: %v\n", err)
-		return nil
+		return err
 	}
 
 	message := kafka.Message{

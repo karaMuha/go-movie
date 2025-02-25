@@ -14,6 +14,6 @@ type IMetadataRepository interface {
 
 type IMetadataEventRepository interface {
 	Save(ctx context.Context, event *metadataModel.MetadataEvent) *dtos.RespErr
-	Load(ctx context.Context) (*[]metadataModel.MetadataEvent, *dtos.RespErr)
+	Load(ctx context.Context) ([]metadataModel.MetadataEvent, *dtos.RespErr)
 	Delete(ctx context.Context, ID string) *dtos.RespErr
 }

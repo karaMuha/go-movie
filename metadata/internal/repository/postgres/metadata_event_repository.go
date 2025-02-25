@@ -25,7 +25,7 @@ var _ driven.IMetadataEventRepository = (*MetadataEventRepository)(nil)
 
 func (r *MetadataEventRepository) Save(ctx context.Context, event *metadataModel.MetadataEvent) *dtos.RespErr {
 	query := `
-		INSERT INTO metadata_created_events(id, record_ype, event_type)
+		INSERT INTO metadata_created_events(id, record_type, event_type)
 		VALUES($1, $2, $3);
 	`
 	_, err := r.db.ExecContext(ctx, query, event.ID, event.RecordType, event.EventType)
@@ -40,7 +40,7 @@ func (r *MetadataEventRepository) Save(ctx context.Context, event *metadataModel
 	return nil
 }
 
-func (r *MetadataEventRepository) Load(ctx context.Context) (*[]metadataModel.MetadataEvent, *dtos.RespErr) {
+func (r *MetadataEventRepository) Load(ctx context.Context) ([]metadataModel.MetadataEvent, *dtos.RespErr) {
 	query := `
 		SELECT *
 		FROM metadata_created_events
@@ -68,7 +68,7 @@ func (r *MetadataEventRepository) Load(ctx context.Context) (*[]metadataModel.Me
 		}
 		events = append(events, event)
 	}
-	return &events, nil
+	return events, nil
 }
 
 func (r *MetadataEventRepository) Delete(ctx context.Context, ID string) *dtos.RespErr {

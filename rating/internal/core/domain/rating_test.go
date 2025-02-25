@@ -1,6 +1,10 @@
 package domain
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/google/uuid"
+)
 
 func TestSubmitRating(t *testing.T) {
 	tests := []struct {
@@ -12,11 +16,11 @@ func TestSubmitRating(t *testing.T) {
 		wantErr    bool
 	}{
 		{"TestNoRecordID", "", "movie", "", 5, true},
-		{"TestNoRecordType", "123", "", "", 5, true},
-		{"TestWrongRecordType", "123", "music", "", 5, true},
-		{"TestValueToHigh", "123", "movie", "", 11, true},
-		{"TestValueNoLow", "123", "movie", "", -1, true},
-		{"TestSuccessfulSubmit", "123", "movie", "", 5, false},
+		{"TestNoRecordType", uuid.NewString(), "", "", 5, true},
+		{"TestWrongRecordType", uuid.NewString(), "music", "", 5, true},
+		{"TestValueToHigh", uuid.NewString(), "movie", "", 11, true},
+		{"TestValueNoLow", uuid.NewString(), "movie", "", -1, true},
+		{"TestSuccessfulSubmit", uuid.NewString(), "movie", "", 5, false},
 	}
 
 	for _, test := range tests {
