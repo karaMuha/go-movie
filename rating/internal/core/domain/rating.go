@@ -1,10 +1,15 @@
 package domain
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/google/uuid"
+)
 
 func SubmitRating(recordID, recordType, userID string, value int) error {
-	if recordID == "" {
-		return errors.New("record ID is empty")
+	err := uuid.Validate(recordID)
+	if err != nil {
+		return err
 	}
 
 	if recordType != "movie" {
