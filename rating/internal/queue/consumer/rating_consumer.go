@@ -33,7 +33,10 @@ func (c *RatingEventConsumer) StartReadingRatingEvents() {
 			log.Printf("error reading message from queue: %v\n", err)
 			continue
 		}
-		c.RatingReader.CommitMessages(context.Background(), message)
+		err = c.RatingReader.CommitMessages(context.Background(), message)
+		if err != nil {
+			log.Printf("Error commiting fetched message: %v\n", err)
+		}
 
 		var event ratingmodel.RatingEvent
 		err = json.Unmarshal(message.Value, &event)

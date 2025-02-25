@@ -1,0 +1,147 @@
+name: ci
+
+on:
+  push:
+    branches: [integration]
+
+jobs:
+  unit_tests_movie:
+    name: Unit Tests Movie Service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.0"
+      
+      - name: Run unit tests
+        run: go test -v ./movie/internal/core/domain
+  
+  unit_tests_metadata:
+    name: Unit Tests Metadata Service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.0"
+      
+      - name: Run unit tests
+        run: go test -v ./metadata/internal/core/domain
+  
+  unit_tests_ratings:
+    name: Unit Tests Rating Service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.0"
+      
+      - name: Run unit tests
+        run: go test -v ./rating/internal/core/domain
+  
+  integration_tests_metadata:
+    name: Integration Tests Metadata Service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.0"
+      
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+      
+      - name: Install protoc-gen-go
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+      
+      - name: Install protoc-gen-go-grpc
+        run: go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      
+      - name: Generate gRPC code
+        run: make gen-pb
+      
+      - name: Run integration tests
+        run: go test ./metadata/internal/core/commands
+  
+  integration_tests_ratings:
+    name: Integration Tests Rating Service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.0"
+    
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+      
+      - name: Install protoc-gen-go
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+      
+      - name: Install protoc-gen-go-grpc
+        run: go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      
+      - name: Generate gRPC code
+        run: make gen-pb
+      
+      - name: Run integration tests
+        run: go test ./rating/internal/core/commands
+  
+  static_check:
+    name: Static code check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.0"
+      
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+      
+      - name: Install protoc-gen-go
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+      
+      - name: Install protoc-gen-go-grpc
+        run: go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      
+      - name: Generate gRPC code
+        run: make gen-pb
+      
+      - name: Install staticcheck
+        run: go install honnef.co/go/tools/cmd/staticcheck@latest
+      
+      - name: Install gosec
+        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+      - name: Run staticcheck
+        run: staticcheck ./...
+      
+      - name: Run gosec
+        run: gosec -exclude-generated ./...

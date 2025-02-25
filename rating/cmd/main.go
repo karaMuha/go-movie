@@ -59,7 +59,7 @@ func main() {
 	defer db.Close()
 
 	ratingRepo := postgres_repo.NewRatingRepository(db)
-	aggregatedRatingRepo := postgres_repo.NewAggregatedMetadataRepository(db)
+	aggregatedRatingRepo := postgres_repo.NewAggregatedRatingRepository(db)
 	app := core.New(&ratingRepo, &aggregatedRatingRepo)
 
 	ratingConsumer := consumer.NewRatingEventConsumer(&app, config.KafkaAddress, "ratings", "rating")

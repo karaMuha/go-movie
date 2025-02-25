@@ -68,7 +68,7 @@ func (g *RatingGateway) SubmitRating(ctx context.Context, recordID ratingmodel.R
 		UserId:      rating.UserID,
 		RecordId:    rating.RecordID,
 		RecordType:  rating.RecordType,
-		RatingValue: int32(rating.Value),
+		RatingValue: int32(rating.Value), // #nosec G115
 	})
 	if err != nil {
 		return &dtos.RespErr{

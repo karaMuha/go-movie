@@ -43,7 +43,10 @@ func (c *MetadataEventConsumer) StartReadingMetadataEvents() {
 			log.Printf("error reading message from queue: %v\n", err)
 			continue
 		}
-		c.Reader.CommitMessages(context.Background(), message)
+		err = c.Reader.CommitMessages(context.Background(), message)
+		if err != nil {
+			log.Printf("Error commiting fetched message: %v\n", err)
+		}
 
 		var event metadataModel.MetadataEvent
 		err = json.Unmarshal(message.Value, &event)

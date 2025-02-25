@@ -37,7 +37,7 @@ func (h *RatingHandler) GetAggregatedRating(ctx context.Context, req *pb.GetAggr
 
 	return &pb.GetAggregatedRatingResponse{
 		RatingValue:  rating,
-		AmountRating: int32(amountRatings),
+		AmountRating: int32(amountRatings), // #nosec G115
 		ResponseStatus: &pb.ResponseStatus{
 			StatusCode: http.StatusOK,
 		},

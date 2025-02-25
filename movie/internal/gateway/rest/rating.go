@@ -34,7 +34,7 @@ func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID rating
 			StatusMessage: err.Error(),
 		}
 	}
-	url := fmt.Sprintf("http://%s/v1/get-rating", addresses[rand.Intn(len(addresses))])
+	url := fmt.Sprintf("http://%s/v1/get-rating", addresses[rand.Intn(len(addresses))]) // #nosec G404
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return 0, 0, &dtos.RespErr{
@@ -81,7 +81,7 @@ func (g *RatingGateway) SubmitRating(ctx context.Context, recordID ratingmodel.R
 			StatusMessage: err.Error(),
 		}
 	}
-	url := fmt.Sprintf("%s/v1/submit-rating", addresses[rand.Intn(len(addresses))])
+	url := fmt.Sprintf("%s/v1/submit-rating", addresses[rand.Intn(len(addresses))]) // #nosec G404
 	body := ratingmodel.Rating{
 		RecordID:   string(recordID),
 		RecordType: string(recordType),
