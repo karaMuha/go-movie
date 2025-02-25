@@ -7,7 +7,7 @@ import (
 
 func RespErrToProto(respErr *dtos.RespErr) *pb.ResponseStatus {
 	return &pb.ResponseStatus{
-		StatusCode: int32(respErr.StatusCode),
+		StatusCode: int32(respErr.StatusCode), // #nosec G115
 		Message:    respErr.StatusMessage,
 	}
 }

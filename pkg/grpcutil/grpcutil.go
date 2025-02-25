@@ -17,5 +17,5 @@ func ServiceConnection(ctx context.Context, serviceName string, registry discove
 	if err != nil {
 		return nil, err
 	}
-	return grpc.NewClient(addrs[rand.Intn(len(addrs))], grpc.WithTransportCredentials(insecure.NewCredentials()))
+	return grpc.NewClient(addrs[rand.Intn(len(addrs))], grpc.WithTransportCredentials(insecure.NewCredentials())) // #nosec G404
 }

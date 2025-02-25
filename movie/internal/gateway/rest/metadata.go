@@ -34,7 +34,7 @@ func (g *MetadataGateway) GetMetadata(ctx context.Context, movieID string) (*met
 		}
 	}
 
-	url := fmt.Sprintf("http://%s/v1/get-metadata", addresses[rand.Intn(len(addresses))])
+	url := fmt.Sprintf("http://%s/v1/get-metadata", addresses[rand.Intn(len(addresses))]) // #nosec G404
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, &dtos.RespErr{
