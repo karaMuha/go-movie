@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/karaMuha/go-movie/pkg/database/postgres"
 	postgres_repo "github.com/karaMuha/go-movie/rating/internal/repository/postgres"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
@@ -45,11 +46,11 @@ func (s *SubmitRatingTestSuite) AfterTest(suiteName, testName string) {
 
 func (s *SubmitRatingTestSuite) TestSubmitRating() {
 	rating := ratingmodel.Rating{
-		RecordID:   "123",
+		RecordID:   uuid.NewString(),
 		RecordType: "movie",
 		UserID:     "123",
 		Value:      5,
 	}
-	respErr := s.cmd.SubmitRating(s.ctx, "123", "movie", &rating)
+	respErr := s.cmd.SubmitRating(s.ctx, ratingmodel.RecordID(rating.RecordID), ratingmodel.RecordType(rating.RecordType), &rating)
 	require.Nil(s.T(), respErr)
 }
