@@ -50,12 +50,6 @@ jobs:
         with:
           go-version: "1.24.0"
       
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v3
-      
-      - name: Generate gRPC code
-        run: make gen-pb
-      
       - name: Run unit tests
         run: go test -v ./rating/internal/core/domain
   
@@ -75,6 +69,12 @@ jobs:
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
       
+      - name: Install protoc-gen-go
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+      
+      - name: Install protoc-gen-go-grpc
+        run: go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      
       - name: Generate gRPC code
         run: make gen-pb
       
@@ -93,6 +93,18 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "1.23.0"
+    
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+      
+      - name: Install protoc-gen-go
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+      
+      - name: Install protoc-gen-go-grpc
+        run: go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      
+      - name: Generate gRPC code
+        run: make gen-pb
       
       - name: Run integration tests
         run: go test ./rating/internal/core/commands
