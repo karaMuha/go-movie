@@ -122,6 +122,18 @@ jobs:
         with:
           go-version: "1.24.0"
       
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+      
+      - name: Install protoc-gen-go
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+      
+      - name: Install protoc-gen-go-grpc
+        run: go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+      
+      - name: Generate gRPC code
+        run: make gen-pb
+      
       - name: Install staticcheck
         run: go install honnef.co/go/tools/cmd/staticcheck@latest
       

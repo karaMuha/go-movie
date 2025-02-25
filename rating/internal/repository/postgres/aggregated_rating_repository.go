@@ -14,7 +14,7 @@ type AggregatedRatingRepository struct {
 	db *sql.DB
 }
 
-func NewAggregatedMetadataRepository(db *sql.DB) AggregatedRatingRepository {
+func NewAggregatedRatingRepository(db *sql.DB) AggregatedRatingRepository {
 	return AggregatedRatingRepository{
 		db: db,
 	}
