@@ -9,6 +9,7 @@ import (
 
 	metadataModel "github.com/karaMuha/go-movie/metadata/pkg"
 	"github.com/karaMuha/go-movie/movie/internal/core/ports/driving"
+	"github.com/karaMuha/go-movie/pkg/http/response"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
 
@@ -67,15 +68,7 @@ func (h *MovieHandlerV1) HandleGetMetadata(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	res, err := json.Marshal(&metadata)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	response.WithJson(w, http.StatusOK, metadata)
 }
 
 func (h *MovieHandlerV1) HandleSubmitMetadata(w http.ResponseWriter, r *http.Request) {
@@ -92,13 +85,5 @@ func (h *MovieHandlerV1) HandleSubmitMetadata(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	res, err := json.Marshal(&resp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	w.Write(res)
+	response.WithJson(w, http.StatusCreated, resp)
 }

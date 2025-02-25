@@ -77,8 +77,9 @@ func startRest(app driving.IApplication, port string) {
 	setupRestEndpoints(mux, movieHandlerV1)
 
 	server := &http.Server{
-		Addr:    port,
-		Handler: mux,
+		Addr:              port,
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
 	err := server.ListenAndServe()
