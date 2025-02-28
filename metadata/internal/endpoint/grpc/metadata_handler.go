@@ -48,6 +48,7 @@ func (h *MetadataHandler) SubmitMetadata(ctx context.Context, req *pb.SubmitMeta
 		Title:       req.Metadata.Title,
 		Description: req.Metadata.Description,
 		Director:    req.Metadata.Director,
+		RecordType:  req.Metadata.RecordType,
 	}
 
 	metadata, respErr := h.app.CreateMetadata(ctx, &cmd)

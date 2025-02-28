@@ -11,6 +11,7 @@ import (
 type Cronjob struct {
 	metadataEventRepo driven.IMetadataEventRepository
 	producer          driven.IMessageProducer
+	doneChan          chan struct{}
 }
 
 func NewCronjob(metadataEventRepo driven.IMetadataEventRepository, producer driven.IMessageProducer) Cronjob {
@@ -22,8 +23,19 @@ func NewCronjob(metadataEventRepo driven.IMetadataEventRepository, producer driv
 
 func (c *Cronjob) Run() {
 	for {
-		events, respErr := c.metadataEventRepo.Load(context.Background())
-		if respErr == nil {
+		select {
+		case <-c.doneChan:
+			log.Println("Stopping conjob gracefully")
+			return
+		default:
+			time.Sleep(1 * time.Minute)
+
+			events, respErr := c.metadataEventRepo.Load(context.Background())
+			if respErr != nil {
+				log.Println(respErr)
+				continue
+			}
+
 			for _, event := range events {
 				err := c.producer.PublishMetadataSubmittedEvent(event)
 				if respErr != nil {
@@ -35,10 +47,10 @@ func (c *Cronjob) Run() {
 					log.Printf("Saved event with ID %s and record type %s published but could not be cleaned up: %v\n", event.ID, event.RecordType, respErr)
 				}
 			}
-		} else {
-			log.Println(respErr)
 		}
-
-		time.Sleep(1 * time.Minute)
 	}
+}
+
+func (c *Cronjob) GracefulStop() {
+	c.doneChan <- struct{}{}
 }

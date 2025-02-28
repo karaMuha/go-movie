@@ -23,7 +23,7 @@ func NewRatingGateway(registry discovery.Registry) RatingGateway {
 }
 
 func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType) (float64, int, *dtos.RespErr) {
-	conn, err := grpcutil.ServiceConnection(ctx, "rating", g.registry)
+	conn, err := grpcutil.ServiceConnection(ctx, "ratings-service", g.registry)
 	if err != nil {
 		return 0, 0, &dtos.RespErr{
 			StatusCode:    http.StatusInternalServerError,
@@ -54,7 +54,7 @@ func (g *RatingGateway) GetAggregatedRating(ctx context.Context, recordID rating
 }
 
 func (g *RatingGateway) SubmitRating(ctx context.Context, recordID ratingmodel.RecordID, recordType ratingmodel.RecordType, rating *ratingmodel.Rating) *dtos.RespErr {
-	conn, err := grpcutil.ServiceConnection(ctx, "rating", g.registry)
+	conn, err := grpcutil.ServiceConnection(ctx, "ratings-service", g.registry)
 	if err != nil {
 		return &dtos.RespErr{
 			StatusCode:    http.StatusInternalServerError,

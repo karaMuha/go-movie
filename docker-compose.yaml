@@ -64,9 +64,9 @@ services:
       - DOMAIN=localhost
       - PORT=:8080
       - PORT_EXPOSED=:8080
-      - CONSUL_ADDRESS=host.docker.internal:8500
+      - CONSUL_ADDRESS=consul-agent:8500
       - KAFKA_ADDRESS=kafka:9092
-      - DB_CONNECTION=host=host.docker.internal port=5432 user=admin password=secret dbname=metadata_db sslmode=disable
+      - DB_CONNECTION=host=metadata-db port=5432 user=admin password=secret dbname=metadata_db sslmode=disable
       - DB_DRIVER=postgres
 
   ratings-service:
@@ -83,12 +83,12 @@ services:
       - DOMAIN=localhost
       - PORT=:8080
       - PORT_EXPOSED=:8081
-      - CONSUL_ADDRESS=host.docker.internal:8500
+      - CONSUL_ADDRESS=consul-agent:8500
       - KAFKA_ADDRESS=kafka:9092
       - DB_CONNECTION=host=host.docker.internal port=5433 user=admin password=secret dbname=ratings_db sslmode=disable
       - DB_DRIVER=postgres
 
-  movie-service:
+  movies-service:
     build:
       context: .
       dockerfile: ./movie/Dockerfile
@@ -102,5 +102,5 @@ services:
       - DOMAIN=localhost
       - PORT=:8080
       - PORT_EXPOSED=:8082
-      - CONSUL_ADDRESS=host.docker.internal:8500
+      - CONSUL_ADDRESS=consul-agent:8500
       - KAFKA_ADDRESS=kafka:9092

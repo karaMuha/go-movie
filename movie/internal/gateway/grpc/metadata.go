@@ -23,7 +23,7 @@ func NewMetadataGateway(registry discovery.Registry) MetadataGateway {
 }
 
 func (g *MetadataGateway) GetMetadata(ctx context.Context, movieID string) (*metadataModel.Metadata, *dtos.RespErr) {
-	conn, err := grpcutil.ServiceConnection(ctx, "metadata", g.registry)
+	conn, err := grpcutil.ServiceConnection(ctx, "metadata-service", g.registry)
 	if err != nil {
 		return nil, &dtos.RespErr{
 			StatusCode:    http.StatusInternalServerError,
@@ -52,7 +52,7 @@ func (g *MetadataGateway) GetMetadata(ctx context.Context, movieID string) (*met
 }
 
 func (g *MetadataGateway) SubmitMetadata(ctx context.Context, metadata *metadataModel.Metadata) (*metadataModel.Metadata, *dtos.RespErr) {
-	conn, err := grpcutil.ServiceConnection(ctx, "metadata", g.registry)
+	conn, err := grpcutil.ServiceConnection(ctx, "metadata-service", g.registry)
 	if err != nil {
 		return nil, &dtos.RespErr{
 			StatusCode:    http.StatusInternalServerError,
