@@ -1,3 +1,5 @@
+![workflow badge](https://github.com/karaMuha/go-movie/actions/workflows/ci.yaml/badge.svg)
+
 # go-movie
 Microservices with golang
 
@@ -27,7 +29,6 @@ On the one hand he author discusses and explains some of the key concepts regard
 However I can still recommend this literature to those with no prior experience with microservices.
 
 ## Todos
-- implement graceful shutdown in each service and make sure to inform kafka in case of service shutdown to prevent message loss
 - implement a solution for observability and tracing
 - visualize telemetric data
 - send feedback to author

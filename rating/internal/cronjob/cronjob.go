@@ -5,27 +5,40 @@ import (
 	"log"
 	"time"
 
-	"github.com/karaMuha/go-movie/rating/internal/core"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driven"
+	"github.com/karaMuha/go-movie/rating/internal/core/ports/driving"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
 
 type Cronjob struct {
 	metadataEventRepo driven.IMetadataEventRepository
-	app               core.Application
+	app               driving.IApplication
+	doneChan          chan struct{}
 }
 
-func NewCronjob(metadataEventRepo driven.IMetadataEventRepository, app core.Application) Cronjob {
+func NewCronjob(metadataEventRepo driven.IMetadataEventRepository, app driving.IApplication) Cronjob {
 	return Cronjob{
 		metadataEventRepo: metadataEventRepo,
 		app:               app,
+		doneChan:          make(chan struct{}),
 	}
 }
 
 func (c *Cronjob) RunMetadata() {
 	for {
-		events, err := c.metadataEventRepo.Load(context.Background())
-		if err == nil {
+		select {
+		case <-c.doneChan:
+			log.Println("Stopping cronjob gracefully")
+			return
+		default:
+			time.Sleep(10 * time.Second)
+
+			events, err := c.metadataEventRepo.Load(context.Background())
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+
 			for _, event := range events {
 				err = c.app.SubmitMetadata(&ratingmodel.AggregatedRating{
 					ID:            event.ID,
@@ -42,10 +55,10 @@ func (c *Cronjob) RunMetadata() {
 					log.Printf("Saved event with ID %s and record_type %s processed but could not be cleaned up: %v\n", event.ID, event.RecordType, err)
 				}
 			}
-		} else {
-			log.Println(err)
 		}
-
-		time.Sleep(1 * time.Minute)
 	}
+}
+
+func (c *Cronjob) GracefulStop() {
+	c.doneChan <- struct{}{}
 }

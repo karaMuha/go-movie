@@ -13,6 +13,7 @@ func MetadataToProto(metadata *Metadata) *pb.Metadata {
 		Title:       metadata.Title,
 		Description: metadata.Description,
 		Director:    metadata.Director,
+		RecordType:  metadata.RecordType,
 	}
 }
 
@@ -22,6 +23,7 @@ func MetadataFromProto(metadata *pb.Metadata) *Metadata {
 		Title:       metadata.Title,
 		Description: metadata.Description,
 		Director:    metadata.Director,
+		RecordType:  metadata.RecordType,
 	}
 }
 

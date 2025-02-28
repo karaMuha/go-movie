@@ -6,6 +6,7 @@ message Metadata {
   string title = 2;
   string description = 3;
   string director = 4;
+  string record_type = 5;
 }
 
 message MovieDetails {
