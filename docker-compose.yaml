@@ -64,7 +64,7 @@ services:
       - DOMAIN=localhost
       - PORT=:8080
       - PORT_EXPOSED=:8080
-      - CONSUL_ADDRESS=consul-agnet:8500
+      - CONSUL_ADDRESS=consul-agent:8500
       - KAFKA_ADDRESS=kafka:9092
       - DB_CONNECTION=host=metadata-db port=5432 user=admin password=secret dbname=metadata_db sslmode=disable
       - DB_DRIVER=postgres
@@ -85,7 +85,7 @@ services:
       - PORT_EXPOSED=:8081
       - CONSUL_ADDRESS=consul-agent:8500
       - KAFKA_ADDRESS=kafka:9092
-      - DB_CONNECTION=host=ratings-db port=5433 user=admin password=secret dbname=ratings_db sslmode=disable
+      - DB_CONNECTION=host=host.docker.internal port=5433 user=admin password=secret dbname=ratings_db sslmode=disable
       - DB_DRIVER=postgres
 
   movies-service:
