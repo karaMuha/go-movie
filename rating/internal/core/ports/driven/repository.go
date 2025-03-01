@@ -5,6 +5,7 @@ import (
 
 	metadatamodel "github.com/karaMuha/go-movie/metadata/pkg"
 	"github.com/karaMuha/go-movie/pkg/dtos"
+	"github.com/karaMuha/go-movie/rating/internal/core/domain"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
 
@@ -15,8 +16,8 @@ type IRatingRepository interface {
 
 type IAggregatedRatingRepository interface {
 	Save(ctx context.Context, metadata *ratingmodel.AggregatedRating) *dtos.RespErr
-	Load(ctx context.Context, recordID string, recordType string) (*ratingmodel.AggregatedRating, *dtos.RespErr)
-	Update(ctx context.Context, aggregatedRating *ratingmodel.AggregatedRating) *dtos.RespErr
+	Load(ctx context.Context, recordID string, recordType string) (*domain.AggregatedRating, *dtos.RespErr)
+	Update(ctx context.Context, aggregatedRating *domain.AggregatedRating) *dtos.RespErr
 }
 
 type IMetadataEventRepository interface {

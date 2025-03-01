@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/karaMuha/go-movie/pkg/dtos"
+	"github.com/karaMuha/go-movie/rating/internal/core/domain"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driven"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
@@ -22,7 +23,7 @@ func NewAggregatedRatingRepository(db *sql.DB) AggregatedRatingRepository {
 
 var _ driven.IAggregatedRatingRepository = (*AggregatedRatingRepository)(nil)
 
-func (r *AggregatedRatingRepository) Load(ctx context.Context, recordID string, recordType string) (*ratingmodel.AggregatedRating, *dtos.RespErr) {
+func (r *AggregatedRatingRepository) Load(ctx context.Context, recordID string, recordType string) (*domain.AggregatedRating, *dtos.RespErr) {
 	query := `
 		SELECT * 
 		FROM aggregated_ratings
@@ -30,9 +31,9 @@ func (r *AggregatedRatingRepository) Load(ctx context.Context, recordID string, 
 	`
 	row := r.db.QueryRowContext(ctx, query, recordID, recordType)
 
-	var aggregatedRating ratingmodel.AggregatedRating
+	var aggregatedRating domain.AggregatedRating
 	if err := row.Scan(
-		&aggregatedRating.ID,
+		&aggregatedRating.RecordID,
 		&aggregatedRating.RecordType,
 		&aggregatedRating.Rating,
 		&aggregatedRating.AmountRatings,
@@ -60,13 +61,13 @@ func (r *AggregatedRatingRepository) Save(ctx context.Context, metadata *ratingm
 	return nil
 }
 
-func (r *AggregatedRatingRepository) Update(ctx context.Context, aggregatedRating *ratingmodel.AggregatedRating) *dtos.RespErr {
+func (r *AggregatedRatingRepository) Update(ctx context.Context, aggregatedRating *domain.AggregatedRating) *dtos.RespErr {
 	query := `
 		UPDATE aggregated_ratings
 		SET rating = $1, amount_ratings = $2
 		WHERE id = $3 AND record_type = $4;
 	`
-	_, err := r.db.ExecContext(ctx, query, aggregatedRating.Rating, aggregatedRating.AmountRatings, aggregatedRating.ID, aggregatedRating.RecordType)
+	_, err := r.db.ExecContext(ctx, query, aggregatedRating.Rating, aggregatedRating.AmountRatings, aggregatedRating.RecordID, aggregatedRating.RecordType)
 	if err != nil {
 		return &dtos.RespErr{
 			StatusCode:    http.StatusInternalServerError,

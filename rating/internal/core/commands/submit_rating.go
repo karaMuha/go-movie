@@ -42,11 +42,8 @@ func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, recordID model.R
 		return respErr
 	}
 
-	ratingSum := aggregatedRating.Rating * float64(aggregatedRating.AmountRatings)
-	ratingSum += float64(rating.Value)
-	newRating := ratingSum / (float64(aggregatedRating.AmountRatings) + 1.0)
-	aggregatedRating.AmountRatings += 1
-	aggregatedRating.Rating = newRating
+	aggregatedRating.CalculateUpdatedRating(rating.Value)
+
 	respErr = c.aggregatedRatingRepo.Update(ctx, aggregatedRating)
 	if respErr != nil {
 		// save in table for cronjob
