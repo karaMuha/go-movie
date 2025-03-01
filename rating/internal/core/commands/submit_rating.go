@@ -42,7 +42,7 @@ func (c *SubmitRatingCommand) SubmitRating(ctx context.Context, recordID model.R
 		return respErr
 	}
 
-	aggregatedRating.CalculateUpdatedRating(float64(rating.Value))
+	aggregatedRating.CalculateUpdatedRating(rating.Value)
 
 	respErr = c.aggregatedRatingRepo.Update(ctx, aggregatedRating)
 	if respErr != nil {

@@ -16,7 +16,7 @@ func CreateAggregatedRating(recordID, recordType string) *AggregatedRating {
 	}
 }
 
-func (r *AggregatedRating) CalculateUpdatedRating(ratingValue float64) {
+func (r *AggregatedRating) CalculateUpdatedRating(ratingValue int) {
 	ratingSum := r.Rating * float64(r.AmountRatings)
 	ratingSum += float64(ratingValue)
 	newRating := ratingSum / (float64(r.AmountRatings) + 1.0)
