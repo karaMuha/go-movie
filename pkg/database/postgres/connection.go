@@ -15,7 +15,7 @@ func initDatabase(dbDriver string, dbConnection string) (*sql.DB, error) {
 
 	err = db.Ping()
 	if err != nil {
-		log.Printf("Error while validation database connection: %v", err)
+		log.Printf("Error while validating database connection: %v", err)
 		return nil, err
 	}
 
