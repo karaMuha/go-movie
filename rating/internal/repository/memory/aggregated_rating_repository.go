@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/karaMuha/go-movie/pkg/dtos"
+	"github.com/karaMuha/go-movie/rating/internal/core/domain"
 	"github.com/karaMuha/go-movie/rating/internal/core/ports/driven"
 	ratingmodel "github.com/karaMuha/go-movie/rating/pkg"
 )
@@ -30,7 +31,7 @@ func (r *AggregatedRatingRepository) Save(ctx context.Context, metadata *ratingm
 	return nil
 }
 
-func (r *AggregatedRatingRepository) Load(ctx context.Context, recordID string, recrodType string) (*ratingmodel.AggregatedRating, *dtos.RespErr) {
+func (r *AggregatedRatingRepository) Load(ctx context.Context, recordID string, recrodType string) (*domain.AggregatedRating, *dtos.RespErr) {
 	aggregatedRating, ok := r.data[ratingmodel.RecordType(recrodType)][ratingmodel.RecordID(recordID)]
 	if !ok {
 		return nil, &dtos.RespErr{
@@ -38,9 +39,14 @@ func (r *AggregatedRatingRepository) Load(ctx context.Context, recordID string, 
 			StatusMessage: "Not Found",
 		}
 	}
-	return aggregatedRating, nil
+	return &domain.AggregatedRating{
+		RecordID:      aggregatedRating.ID,
+		RecordType:    aggregatedRating.RecordType,
+		Rating:        aggregatedRating.Rating,
+		AmountRatings: aggregatedRating.AmountRatings,
+	}, nil
 }
 
-func (r *AggregatedRatingRepository) Update(ctx context.Context, aggregatedRating *ratingmodel.AggregatedRating) *dtos.RespErr {
+func (r *AggregatedRatingRepository) Update(ctx context.Context, aggregatedRating *domain.AggregatedRating) *dtos.RespErr {
 	return nil
 }
