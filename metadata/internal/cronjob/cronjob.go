@@ -25,7 +25,7 @@ func (c *Cronjob) Run() {
 	for {
 		select {
 		case <-c.doneChan:
-			log.Println("Stopping conjob gracefully")
+			log.Println("Stopping cronjob gracefully")
 			return
 		default:
 			time.Sleep(1 * time.Minute)
@@ -53,4 +53,5 @@ func (c *Cronjob) Run() {
 
 func (c *Cronjob) GracefulStop() {
 	c.doneChan <- struct{}{}
+	close(c.doneChan)
 }
