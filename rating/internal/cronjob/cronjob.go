@@ -61,4 +61,5 @@ func (c *Cronjob) RunMetadata() {
 
 func (c *Cronjob) GracefulStop() {
 	c.doneChan <- struct{}{}
+	close(c.doneChan)
 }
