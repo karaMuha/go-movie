@@ -1,4 +1,5 @@
 ![workflow badge](https://github.com/karaMuha/go-movie/actions/workflows/ci.yaml/badge.svg)
+![workflow badge](https://github.com/karaMuha/go-movie/actions/workflows/cd.yaml/badge.svg)
 
 # go-movie
 Microservices with golang
