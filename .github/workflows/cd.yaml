@@ -22,8 +22,7 @@ jobs:
       
       - name: Build and push image
         run: |
-          cd rating
-          docker build . --tag ghcr.io/go-movie/ratings-service:latest
+          docker build . --tag ghcr.io/go-movie/ratings-service:latest -f ./rating/Dockerfile
           docker push ghcr.io/go-movie/ratings-service:latest
   
   metadata_service:
@@ -43,8 +42,7 @@ jobs:
       
       - name: Build and push image
         run: |
-          cd metadata
-          docker build . --tag ghcr.io/go-movie/metadata-service:latest
+          docker build . --tag ghcr.io/go-movie/metadata-service:latest -f ./metadata/Dockerfile
           docker push ghcr.io/go-movie/metadata-service:latest
   
   movie_service:
@@ -64,6 +62,5 @@ jobs:
       
       - name: Build and push image
         run: |
-          cd movie
-          docker build . --tag ghcr.io/go-movie/movie-service:latest
+          docker build . --tag ghcr.io/go-movie/movie-service:latest -f ./movie/Dockerfile
           docker push ghcr.io/go-movie/movie-service:latest
