@@ -1,0 +1,69 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  ratings_service:
+    name: Build and push ratings service image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CR_PAT }}
+      
+      - name: Build and push image
+        run: |
+          cd rating
+          docker build . --tag ghcr.io/go-movie/ratings-service:latest
+          docker push ghcr.io/go-movie/ratings-service:latest
+  
+  metadata_service:
+    name: Build and push metadata service image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CR_PAT }}
+      
+      - name: Build and push image
+        run: |
+          cd metadata
+          docker build . --tag ghcr.io/go-movie/metadata-service:latest
+          docker push ghcr.io/go-movie/metadata-service:latest
+  
+  movie_service:
+    name: Build and push movie service image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CR_PAT }}
+      
+      - name: Build and push image
+        run: |
+          cd movie
+          docker build . --tag ghcr.io/go-movie/movie-service:latest
+          docker push ghcr.io/go-movie/movie-service:latest

@@ -32,6 +32,8 @@ However I can still recommend this literature to those with no prior experience 
 - implement a solution for observability and tracing
 - visualize telemetric data
 - send feedback to author
+- implement users serivce for registration and login
+- implement auth and rate limiting in movie service
 
 ## What next?
 To get deeper into microservices and learn how to design and implement a complex event-driven architecture, I will study the literature `Event-Driven Architecture in Golang: Building complex systems with asynchronicity and eventual consistency` from the author Michael Stack.
