@@ -39,8 +39,8 @@ jobs:
       
       - name: Build and push image
         run: |
-          docker build . -t ghcr.io/go-movie/ratings-service:latest -f ./rating/Dockerfile
-          docker push ghcr.io/go-movie/ratings-service:latest
+          docker build . -t ghcr.io/karamuha/go-movie-ratings-service:latest -f ./rating/Dockerfile
+          docker push ghcr.io/karamuha/go-movie-ratings-service:latest
   
   metadata_service:
     name: Build and push metadata service image
@@ -76,8 +76,8 @@ jobs:
       
       - name: Build and push image
         run: |
-          docker build . -t ghcr.io/go-movie/metadata-service:latest -f ./metadata/Dockerfile
-          docker push ghcr.io/go-movie/metadata-service:latest
+          docker build . -t ghcr.io/karamuha/go-movie-metadata-service:latest -f ./metadata/Dockerfile
+          docker push ghcr.io/karamuha/go-movie-metadata-service:latest
   
   movie_service:
     name: Build and push movie service image
@@ -113,5 +113,5 @@ jobs:
       
       - name: Build and push image
         run: |
-          docker build . -t ghcr.io/go-movie/movie-service:latest -f ./movie/Dockerfile
-          docker push ghcr.io/go-movie/movie-service:latest
+          docker build . -t ghcr.io/karamuha/go-movie-movie-service:latest -f ./movie/Dockerfile
+          docker push ghcr.io/karamuha/go-movie-movie-service:latest
