@@ -50,35 +50,43 @@ func (c *MetadataEventConsumer) StartReadingMetadataEvents() {
 				log.Printf("error reading metadata message from queue: %v\n", err)
 				continue
 			}
-			err = c.Reader.CommitMessages(context.Background(), message)
-			if err != nil {
-				log.Printf("Error commiting fetched message: %v\n", err)
-			}
 
-			var event metadataModel.MetadataEvent
-			err = json.Unmarshal(message.Value, &event)
-			if err != nil {
-				log.Printf("Unmarshal error on event: %v", err)
-				continue
-			}
-
-			log.Printf("Read message: %v\n", event)
-			respErr := c.app.SubmitMetadata(&ratingmodel.AggregatedRating{
-				ID:            event.ID,
-				RecordType:    string(event.RecordType),
-				Rating:        0.0,
-				AmountRatings: 0,
-			})
-			if respErr != nil {
-				respErr = c.metadataEventRepository.Save(context.Background(), event)
-				if respErr != nil {
-					log.Printf("event with ID %s failed to be processed: %v\n", event.ID, err)
-				}
-			}
+			go c.ProcessEvent(message)
 		}
 	}
 }
 
 func (c *MetadataEventConsumer) StopReadingEvents() {
 	c.doneChan <- struct{}{}
+}
+
+func (c *MetadataEventConsumer) ProcessEvent(message kafka.Message) {
+	err := c.Reader.CommitMessages(context.Background(), message)
+	if err != nil {
+		log.Printf("Error commiting fetched message: %v\n", err)
+		return
+	}
+
+	var event metadataModel.MetadataEvent
+	err = json.Unmarshal(message.Value, &event)
+	if err != nil {
+		log.Printf("Unmarshal error on event: %v", err)
+		return
+	}
+
+	log.Printf("Read message: %v\n", event)
+	metadata := &ratingmodel.AggregatedRating{
+		ID:            event.ID,
+		RecordType:    string(event.RecordType),
+		Rating:        0.0,
+		AmountRatings: 0,
+	}
+
+	respErr := c.app.SubmitMetadata(metadata)
+	if respErr != nil {
+		respErr = c.metadataEventRepository.Save(context.Background(), event)
+		if respErr != nil {
+			log.Printf("event with ID %s failed to be processed: %v\n", event.ID, respErr)
+		}
+	}
 }

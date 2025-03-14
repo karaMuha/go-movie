@@ -39,30 +39,38 @@ func (c *RatingEventConsumer) StartReadingRatingEvents() {
 				log.Printf("error reading rating message from queue: %v\n", err)
 				continue
 			}
-			err = c.RatingReader.CommitMessages(context.Background(), message)
-			if err != nil {
-				log.Printf("Error commiting fetched message: %v\n", err)
-			}
 
-			var event ratingmodel.RatingEvent
-			err = json.Unmarshal(message.Value, &event)
-			if err != nil {
-				log.Printf("Unmarshal error on event: %v", err)
-				continue
-			}
-
-			log.Printf("Read message: %v\n", event)
-
-			c.app.SubmitRating(context.Background(), ratingmodel.RecordID(event.RecordID), ratingmodel.RecordType(event.RecordType), &ratingmodel.Rating{
-				RecordID:   event.RecordID,
-				RecordType: event.RecordType,
-				UserID:     event.UserID,
-				Value:      event.Value,
-			})
+			go c.ProcessEvent(message)
 		}
 	}
 }
 
 func (c *RatingEventConsumer) StopReadingEvents() {
 	c.doneChan <- struct{}{}
+}
+
+func (c *RatingEventConsumer) ProcessEvent(message kafka.Message) {
+	err := c.RatingReader.CommitMessages(context.Background(), message)
+	if err != nil {
+		log.Printf("Error commiting fetched message: %v\n", err)
+		return
+	}
+
+	var event ratingmodel.RatingEvent
+	err = json.Unmarshal(message.Value, &event)
+	if err != nil {
+		log.Printf("Unmarshal error on event: %v", err)
+		return
+	}
+
+	log.Printf("Read message: %v\n", event)
+
+	rating := &ratingmodel.Rating{
+		RecordID:   event.RecordID,
+		RecordType: event.RecordType,
+		UserID:     event.UserID,
+		Value:      event.Value,
+	}
+
+	c.app.SubmitRating(context.Background(), ratingmodel.RecordID(event.RecordID), ratingmodel.RecordType(event.RecordType), rating)
 }
