@@ -28,6 +28,7 @@ Even though I followed the authors example project there are some major differen
 - protoc-gen-go
 - protoc-gen-go-grpc
 - Docker / Docker Desktop
+- make (should already be installed on Linux distributions)
 
 Clone the repo and run `make prepare`. This will generate the folder structure to persists data from the postgres containers and generate the protobuf code needed for gRPC. Then start Docker Desktop and run `make run`.
 
